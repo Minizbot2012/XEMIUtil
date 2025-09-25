@@ -3,7 +3,9 @@
   "version-string": "1",
   "dependencies": [
     "reflectcpp",
-    "mergemapper"
+    "clib-util",
+    "mergemapper",
+    "ctre"
   ],
   "features": {
     "ae": {

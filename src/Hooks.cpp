@@ -1,12 +1,12 @@
+#include <ClibUtil/editorID.hpp>
 #include <Hooks.h>
 namespace MPL::Hooks
 {
-    struct InitOBJ
+    struct ShouldBackgroundClone_TESObjectREFR
     {
         using Target = RE::TESObjectREFR;
-        static inline void thunk(Target* a_ref)
+        static inline bool thunk(Target* a_ref)
         {
-            func(a_ref);
             if (a_ref != nullptr)
             {
                 auto ref = a_ref->GetObjectReference();
@@ -14,39 +14,88 @@ namespace MPL::Hooks
                 {
                     auto* std = MPL::Config::StatData::GetSingleton();
                     std->LoadConfig();
-                    auto itm = std::find_if(std->entries.rbegin(), std->entries.rend(), [&](auto ent) {
-                        return ent.forms.contains(a_ref->GetFormID());
-                    });
-                    if (itm != std->entries.rend() && itm->xemi != 0x0 && !(a_ref->sourceFiles.array->back()->GetFilename().starts_with("WSU") || a_ref->sourceFiles.array->back()->GetFilename() == "Synthesis.esp"))
+                    auto fid = a_ref->GetFormID();
+                    auto edid = clib_util::editorID::get_editorID(a_ref);
+                    if (!edid.empty())
                     {
-                        if (a_ref->extraList.HasType<RE::ExtraEmittanceSource>())
+                        auto reg = ctre::match<"(?<dyndo>dyndolodes[pm]_......_)?(?<file_name>.*)(?<type>esm|esl|esp)_(?<lfid>......)_.*">(edid);
+                        if (reg.matched())
                         {
-                            auto* edr = a_ref->extraList.GetByType<RE::ExtraEmittanceSource>();
-                            auto* frm = RE::TESForm::LookupByID(itm->xemi);
+                            auto file_name = reg.get<"file_name">().to_string();
+                            auto lfid = strtoul(reg.get<"lfid">().to_string().c_str(), nullptr, 16);
+                            auto type = reg.get<"type">().to_string();
+                            for (auto* file : RE::TESDataHandler::GetSingleton()->files)
+                            {
+                                auto rfn = file->GetFilename();
+                                std::string fnr(rfn.begin(), rfn.end());
+                                fnr.erase(std::remove_if(fnr.begin(), fnr.end(), [](unsigned char c) {
+                                    return std::isspace(c);
+                                }),
+                                    fnr.end());
+                                if (_strcmpi(fnr.c_str(), std::format("{}.{}", file_name, type).c_str()) == 0)
+                                {
+                                    file_name = fnr;
+                                    break;
+                                }
+                            }
+                            if (file_name != "" && type != "" && lfid != 0x0)
+                            {
 #ifdef DEBUG
-                            logger::info("(INIT)(REP): {:X}:{} -> {:X}:{} W/ {:X}:{}", a_ref->GetLocalFormID(), a_ref->sourceFiles.array->front()->GetFilename(), edr->source->GetLocalFormID(), edr->source->sourceFiles.array->front()->GetFilename(), frm->GetLocalFormID(), frm->sourceFiles.array->front()->GetFilename());
+                                logger::info("DynDOLOD: file: {}, type: {}, lfid: {:06X}", file_name, type, lfid);
 #endif
-                            edr->source = frm;
+                                fid = RE::TESDataHandler::GetSingleton()->LookupFormID(lfid, std::format("{}.{}", file_name, type));
+                            }
                         }
+#ifdef DEBUG
                         else
                         {
-                            auto* frm = RE::TESForm::LookupByID(itm->xemi);
-#ifdef DEBUG
-                            logger::info("(INIT)(CRE): {:X}:{} -> {:X}:{}", a_ref->GetLocalFormID(), a_ref->sourceFiles.array->front()->GetFilename(), frm->GetLocalFormID(), frm->sourceFiles.array->front()->GetFilename());
+                            logger::info("Other: {}", edid);
+                        }
 #endif
-                            auto* ext = RE::BSExtraData::Create<RE::ExtraEmittanceSource>();
-                            ext->source = frm;
-                            a_ref->extraList.Add(ext);
+                    }
+                    if (fid != 0x0)
+                    {
+                        MPL::Config::ConfigEntry* itm = nullptr;
+                        for (auto& ent : std->entries | std::views::reverse)
+                        {
+                            if (ent.forms.count(fid))
+                            {
+                                itm = &ent;
+                                break;
+                            }
+                        }
+                        if (itm != nullptr && itm->xemi != 0x0 && !(a_ref->sourceFiles.array->back()->GetFilename().starts_with("WSU") || a_ref->sourceFiles.array->back()->GetFilename() == "Synthesis.esp"))
+                        {
+                            if (a_ref->extraList.HasType<RE::ExtraEmittanceSource>())
+                            {
+                                auto* edr = a_ref->extraList.GetByType<RE::ExtraEmittanceSource>();
+                                auto* frm = RE::TESForm::LookupByID(itm->xemi);
+#ifdef DEBUG
+                                logger::info("(INIT)(REP): {:X}:{} -> {:X}:{} W/ {:X}:{}", a_ref->GetLocalFormID(), a_ref->sourceFiles.array->front()->GetFilename(), edr->source->GetLocalFormID(), edr->source->sourceFiles.array->front()->GetFilename(), frm->GetLocalFormID(), frm->sourceFiles.array->front()->GetFilename());
+#endif
+                                edr->source = frm;
+                            }
+                            else
+                            {
+                                auto* frm = RE::TESForm::LookupByID(itm->xemi);
+#ifdef DEBUG
+                                logger::info("(INIT)(CRE): {:X}:{} -> {:X}:{}", a_ref->GetLocalFormID(), a_ref->sourceFiles.array->front()->GetFilename(), frm->GetLocalFormID(), frm->sourceFiles.array->front()->GetFilename());
+#endif
+                                auto* ext = RE::BSExtraData::Create<RE::ExtraEmittanceSource>();
+                                ext->source = frm;
+                                a_ref->extraList.Add(ext);
+                            }
                         }
                     }
                 }
             }
+            return func(a_ref);
         }
         static inline REL::Relocation<decltype(thunk)> func;
-        static inline constexpr std::size_t index{ 0x13 };
+        static inline constexpr std::size_t index{ 0x6D };
     };
     void Install()
     {
-        stl::install_hook<InitOBJ>();
+        stl::install_hook<ShouldBackgroundClone_TESObjectREFR>();
     };
 }  // namespace MPL::Hooks

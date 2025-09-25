@@ -10,6 +10,7 @@ extern "C" DLLEXPORT auto SKSEPlugin_Version = []() {
     v.UsesNoStructs();
     return v;
 }();
+
 #elif defined(SKYRIM_VR)
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 {
@@ -27,6 +28,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
     }
     return true;
 };
+
 #endif
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_skse)
 {

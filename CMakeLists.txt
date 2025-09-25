@@ -131,12 +131,14 @@ target_include_directories(
 
 find_package(${CommonLibName} CONFIG REQUIRED)
 find_package(reflectcpp CONFIG REQUIRED)
+find_package(ctre CONFIG REQUIRED)
 
 target_link_libraries(
 	${PROJECT_NAME}
 	PRIVATE
 		${CommonLibName}::${CommonLibName}
 		reflectcpp::reflectcpp
+		ctre::ctre
 )
 
 target_precompile_headers(

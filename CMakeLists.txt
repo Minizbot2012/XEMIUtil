@@ -64,6 +64,12 @@ project(
 	LANGUAGES CXX
 )
 
+configure_file(
+	${CMAKE_CURRENT_SOURCE_DIR}/cmake/Plugin.h.in
+	${CMAKE_CURRENT_BINARY_DIR}/include/Plugin.h
+	@ONLY
+)
+
 # ---- Include guards ----
 
 if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)

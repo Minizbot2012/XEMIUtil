@@ -11,16 +11,8 @@ extern "C" DLLEXPORT auto SKSEPlugin_Version = []() {
     v.UsesNoStructs();
     return v;
 }();
-
-extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
-{
-    auto ver = a_skse->RuntimeVersion();
-    if(ver <= SKSE::RUNTIME_SSE_1_6_629) {
-        stl::report_and_fail("This is the improper version for your game. This is setup so that this plugin doesn't silently fail on your version. Please use the SE version in the fomod.");
-    }
-    return false;
-}
 #else
+
 extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
 {
     a_info->infoVersion = SKSE::PluginInfo::kVersion;
@@ -30,13 +22,8 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
     {
         return false;
     }
-    const auto ver = a_skse->RuntimeVersion();
-    #ifdef SKYRIMVR
-    if (ver < SKSE::RUNTIME_VR_1_4_15)
-    #else
-    if(ver != SKSE::RUNTIME_SSE_1_5_97)
-    #endif
-    {
+    auto ver = a_skse->RuntimeVersion();
+    if(ver > SKSE::RUNTIME_SSE_1_5_97) {
         return false;
     }
     return true;

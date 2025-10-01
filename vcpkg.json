@@ -12,7 +12,12 @@
       "description": "Build for AE",
       "dependencies": [
         {
-          "name": "commonlibsse"
+          "name": "commonlibsse",
+          "features": [
+            {
+              "name": "skyrimae"
+            }
+          ]
         }
       ]
     },

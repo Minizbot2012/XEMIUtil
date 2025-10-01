@@ -13,6 +13,11 @@
       "xbyak",
       "rsm-binary-io",
       "spdlog"
-    ]
+    ],
+    "features": {
+      "skyrimae": {
+        "description": "Build for Skyrim AE"
+      }
+    }
   }
   

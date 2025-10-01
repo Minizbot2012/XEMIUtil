@@ -1,6 +1,7 @@
 #include <Config.h>
 #include <Hooks.h>
 #include <Plugin.h>
+
 #ifdef SKYRIM_AE
 extern "C" DLLEXPORT auto SKSEPlugin_Version = []() {
     SKSE::PluginVersionData v;
@@ -23,7 +24,12 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
         return false;
     }
     auto ver = a_skse->RuntimeVersion();
-    if(ver > SKSE::RUNTIME_SSE_1_5_97) {
+#    ifdef SKYRIM_VR
+    if (ver > SKSE::RUNTIME_VR_1_4_15_1)
+#    else
+    if (ver > SKSE::RUNTIME_SSE_1_5_97)
+#    endif
+    {
         return false;
     }
     return true;

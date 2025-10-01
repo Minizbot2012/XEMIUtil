@@ -13,17 +13,17 @@ vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
 )
 
 if(SKYRIM_AE)
-vcpkg_configure_cmake(
-        SOURCE_PATH "${SOURCE_PATH}"
-        PREFER_NINJA
-        OPTIONS -DSKSE_SUPPORT_XBYAK=on -DSKYRIM_SUPPORT_AE=on
-)
+        vcpkg_configure_cmake(
+                SOURCE_PATH "${SOURCE_PATH}"
+                PREFER_NINJA
+                OPTIONS -DSKSE_SUPPORT_XBYAK=on -DSKYRIM_SUPPORT_AE=on
+        )
 else()
-vcpkg_configure_cmake(
-        SOURCE_PATH "${SOURCE_PATH}"
-        PREFER_NINJA
-        OPTIONS -DSKSE_SUPPORT_XBYAK=on -DSKYRIM_SUPPORT_AE=off
-)
+        vcpkg_configure_cmake(
+                SOURCE_PATH "${SOURCE_PATH}"
+                PREFER_NINJA
+                OPTIONS -DSKSE_SUPPORT_XBYAK=on -DSKYRIM_SUPPORT_AE=off
+        )
 endif()
 
 vcpkg_install_cmake()

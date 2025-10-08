@@ -41,9 +41,12 @@ namespace MPL::Hooks
                             if (file_name != "" && type != "" && lfid != 0x0)
                             {
 #ifdef DEBUG
-                                logger::info("DynDOLOD: file: {}, type: {}, lfid: {:06X}", file_name, type, lfid);
+                                logger::info("DynDOLOD: Resolving {}:{:06X} -> file: {}, lfid: {:06X} for lookup", a_ref->sourceFiles.array->back()->GetFilename(), a_ref->GetLocalFormID(), file_name, lfid);
 #endif
-                                fid = RE::TESDataHandler::GetSingleton()->LookupFormID(lfid, std::format("{}.{}", file_name, type));
+                                fid = RE::TESDataHandler::GetSingleton()->LookupFormID(lfid, file_name);
+#ifdef DEBUG
+                                logger::info("DynDOLOD Resolved->lfid: {}:{:06X}", file_name, fid);
+#endif
                             }
                         }
 #ifdef DEBUG

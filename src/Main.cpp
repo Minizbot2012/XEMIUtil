@@ -5,7 +5,7 @@
 #ifdef SKYRIM_AE
 extern "C" DLLEXPORT auto SKSEPlugin_Version = []() {
     SKSE::PluginVersionData v;
-    v.PluginVersion(MPL::Plugin::MAJOR);
+    v.PluginVersion({MPL::Plugin::MAJOR, MPL::Plugin::MINOR, MPL::Plugin::PATCH});
     v.PluginName(MPL::Plugin::PROJECT.data());
     v.AuthorName("Mini");
     v.UsesAddressLibrary();

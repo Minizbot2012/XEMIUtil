@@ -18,7 +18,7 @@ namespace MPL::Hooks
                     auto edid = clib_util::editorID::get_editorID(a_ref);
                     if (!edid.empty())
                     {
-                        auto reg = ctre::match<"(?<dyndo>dyndolodes[pm]_......_)?(?<file_name>.*)(?<type>esm|esl|esp)_(?<lfid>......)_.*">(edid);
+                        auto reg = ctre::match<"(?<dyndo>dyndolodes[pm]_[0-9a-fA-F]{6}_)?(?<file_name>.*)(?<type>esm|esl|esp)_(?<lfid>[0-9a-fA-F]{6})_?.*">(edid);
                         if (reg.matched())
                         {
                             auto file_name = reg.get<"file_name">().to_string();
@@ -27,14 +27,15 @@ namespace MPL::Hooks
                             for (auto* file : RE::TESDataHandler::GetSingleton()->files)
                             {
                                 auto rfn = file->GetFilename();
+                                std::string nrf(rfn.begin(), rfn.end());
                                 std::string fnr(rfn.begin(), rfn.end());
                                 fnr.erase(std::remove_if(fnr.begin(), fnr.end(), [](unsigned char c) {
-                                    return std::isspace(c);
+                                    return std::isspace(c) || c == '\'' || c == '-';
                                 }),
                                     fnr.end());
                                 if (_strcmpi(fnr.c_str(), std::format("{}.{}", file_name, type).c_str()) == 0)
                                 {
-                                    file_name = fnr;
+                                    file_name = nrf;
                                     break;
                                 }
                             }

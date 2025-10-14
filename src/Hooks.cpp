@@ -30,7 +30,7 @@ namespace MPL::Hooks
                                 std::string nrf(rfn.begin(), rfn.end());
                                 std::string fnr(rfn.begin(), rfn.end());
                                 fnr.erase(std::remove_if(fnr.begin(), fnr.end(), [](unsigned char c) {
-                                    return std::isspace(c) || c == '\'' || c == '-';
+                                    return std::isspace(c) || c == '\'' || c == '-' || c == '.';
                                 }),
                                     fnr.end());
                                 if (_strcmpi(fnr.c_str(), std::format("{}.{}", file_name, type).c_str()) == 0)

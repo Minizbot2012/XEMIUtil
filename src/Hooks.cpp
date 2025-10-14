@@ -18,12 +18,11 @@ namespace MPL::Hooks
                     auto edid = clib_util::editorID::get_editorID(a_ref);
                     if (!edid.empty())
                     {
-                        auto reg = ctre::match<"(?<dyndo>dyndolodes[pm]_[0-9a-fA-F]{6}_)?(?<file_name>.*)(?<type>esm|esl|esp)_(?<lfid>[0-9a-fA-F]{6})_?.*">(edid);
+                        auto reg = ctre::match<"(?<dyndo>dyndolodes[pm]_[0-9a-fA-F]{6}_)?(?<file_name>.*esm|esl|esp)_(?<lfid>[0-9a-fA-F]{6})_?.*">(edid);
                         if (reg.matched())
                         {
                             auto file_name = reg.get<"file_name">().to_string();
                             auto lfid = strtoul(reg.get<"lfid">().to_string().c_str(), nullptr, 16);
-                            auto type = reg.get<"type">().to_string();
                             for (auto* file : RE::TESDataHandler::GetSingleton()->files)
                             {
                                 auto rfn = file->GetFilename();
@@ -33,13 +32,13 @@ namespace MPL::Hooks
                                     return std::isspace(c) || c == '\'' || c == '-' || c == '.';
                                 }),
                                     fnr.end());
-                                if (_strcmpi(fnr.c_str(), std::format("{}.{}", file_name, type).c_str()) == 0)
+                                if (_strcmpi(fnr.c_str(), file_name.c_str()) == 0)
                                 {
                                     file_name = nrf;
                                     break;
                                 }
                             }
-                            if (file_name != "" && type != "" && lfid != 0x0)
+                            if (file_name != "" && lfid != 0x0)
                             {
 #ifdef DEBUG
                                 logger::info("DynDOLOD: Resolving {}:{:06X} -> file: {}, lfid: {:06X} for lookup", a_ref->sourceFiles.array->back()->GetFilename(), a_ref->GetLocalFormID(), file_name, lfid);

@@ -13,7 +13,7 @@
 #include <rfl/json.hpp>
 #include <windows.h>
 // clang-format on
-const std::unordered_map<std::string, std::string> string_replacement_table = {
+const std::unordered_map<std::string, std::string> filename_translation_table = {
     { "legacyofthedragonbornv5esm" , "legacyofthedragonbornesm" }
 };
 #ifdef SKYRIM_AE

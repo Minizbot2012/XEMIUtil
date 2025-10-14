@@ -22,9 +22,9 @@ namespace MPL::Hooks
                         if (reg.matched())
                         {
                             auto file_name = reg.get<"file_name">().to_string();
-                            if (string_replacement_table.contains(file_name))
+                            if (filename_translation_table.contains(file_name))
                             {
-                                auto temp = string_replacement_table.at(file_name);
+                                auto temp = filename_translation_table.at(file_name);
 #ifdef DEBUG
                                 logger::info("Filename Lookup table {} -> {}", file_name, temp);
 #endif

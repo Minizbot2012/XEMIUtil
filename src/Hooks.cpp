@@ -22,6 +22,10 @@ namespace MPL::Hooks
                         if (reg.matched())
                         {
                             auto file_name = reg.get<"file_name">().to_string();
+                            if (string_replacement_table.contains(file_name))
+                            {
+                                file_name = string_replacement_table.at(file_name);
+                            }
                             auto lfid = strtoul(reg.get<"lfid">().to_string().c_str(), nullptr, 16);
                             for (auto* file : RE::TESDataHandler::GetSingleton()->files)
                             {

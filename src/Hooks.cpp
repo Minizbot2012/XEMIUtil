@@ -15,55 +15,6 @@ namespace MPL::Hooks
                     auto* std = MPL::Config::StatData::GetSingleton();
                     std->LoadConfig();
                     auto fid = a_ref->GetFormID();
-                    auto edid = clib_util::editorID::get_editorID(a_ref);
-                    if (!edid.empty())
-                    {
-                        auto reg = ctre::match<"(?<dyndo>dyndolodes[pm]_[0-9a-fA-F]{6}_)?(?<file_name>.*esm|esl|esp)_(?<lfid>[0-9a-fA-F]{6})_?.*">(edid);
-                        if (reg.matched())
-                        {
-                            auto file_name = reg.get<"file_name">().to_string();
-                            if (filename_translation_table.contains(file_name))
-                            {
-                                auto temp = filename_translation_table.at(file_name);
-#ifdef DEBUG
-                                logger::info("Filename Lookup table {} -> {}", file_name, temp);
-#endif
-                                file_name = temp;
-                            }
-                            auto lfid = strtoul(reg.get<"lfid">().to_string().c_str(), nullptr, 16);
-                            for (auto* file : RE::TESDataHandler::GetSingleton()->files)
-                            {
-                                auto rfn = file->GetFilename();
-                                std::string nrf(rfn.begin(), rfn.end());
-                                std::string fnr(rfn.begin(), rfn.end());
-                                fnr.erase(std::remove_if(fnr.begin(), fnr.end(), [](unsigned char c) {
-                                    return std::isspace(c) || c == '\'' || c == '-' || c == '.';
-                                }),
-                                    fnr.end());
-                                if (_strcmpi(fnr.c_str(), file_name.c_str()) == 0)
-                                {
-                                    file_name = nrf;
-                                    break;
-                                }
-                            }
-                            if (file_name != "" && lfid != 0x0)
-                            {
-#ifdef DEBUG
-                                logger::info("DynDOLOD: Resolving {}:{:06X} -> file: {}, lfid: {:06X} for lookup", a_ref->sourceFiles.array->back()->GetFilename(), a_ref->GetLocalFormID(), file_name, lfid);
-#endif
-                                fid = RE::TESDataHandler::GetSingleton()->LookupFormID(lfid, file_name);
-#ifdef DEBUG
-                                logger::info("DynDOLOD Resolved->lfid: {}:{:06X}", file_name, fid);
-#endif
-                            }
-                        }
-#ifdef DEBUG
-                        else
-                        {
-                            logger::info("Other: {}", edid);
-                        }
-#endif
-                    }
                     if (fid != 0x0)
                     {
                         MPL::Config::ConfigEntry* itm = nullptr;

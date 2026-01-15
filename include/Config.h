@@ -30,7 +30,31 @@ namespace MPL::Config
                             auto cfg = rfl::json::load<std::vector<ConfigEntry>>(file.path().string());
                             if (cfg)
                             {
-                                this->entries.insert(this->entries.end(), cfg->begin(), cfg->end());
+                                ConfigEntry* inst = nullptr;
+                                for (auto& conf : *cfg)
+                                {
+                                    for (ConfigEntry ent : this->entries)
+                                    {
+                                        if (conf.xemi == ent.xemi)
+                                        {
+                                            inst = &ent;
+                                            break;
+                                        }
+                                    }
+                                    if (inst == nullptr)
+                                    {
+                                        logger::info("Adding new XEMI Entry: {:8X}", conf.xemi);
+                                        this->entries.push_back(conf);
+                                    }
+                                    else
+                                    {
+                                        logger::info("Found Merge XEMI {:8X}", inst->xemi);
+                                        for (auto form : conf.forms)
+                                        {
+                                            inst->forms.insert(form);
+                                        }
+                                    }
+                                }
                             }
                             else
                             {

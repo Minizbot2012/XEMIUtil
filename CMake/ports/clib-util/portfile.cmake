@@ -1,9 +1,9 @@
 # header-only library
-vcpkg_from_github(
+vcpkg_from_git(
     OUT_SOURCE_PATH SOURCE_PATH
-    REPO powerof3/CLibUtil
-    REF 2efbbac132d020b0401904e9b1c5f4d72ed44475
-    SHA512 b106f28746dd678d856fcbc5f5c3a547942a15e6
+    URL https://github.com/powerof3/CLibUtil
+    HEAD_REF master
+    REF 789abd27b8955e974da53713898bf8a3db0e2a66
 )
 
 # Install codes

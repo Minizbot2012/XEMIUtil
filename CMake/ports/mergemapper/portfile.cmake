@@ -1,10 +1,9 @@
 # header-only library
-vcpkg_from_github(
+vcpkg_from_git(
     OUT_SOURCE_PATH SOURCE_PATH
-    REPO alandtse/MergeMapper
-    REF 9d710f2a2e055acb13e41319cc19e3255fa0538a
-    SHA512 4e9b49aaaf5ac969956bf066cb92423b42a4ba6681e188b792ee3494fba3084dccc744dfc4722ee8d8df1b245e5ee4b20a503e9610fadb546df921e6fae42506
+    URL https://github.com/alandtse/MergeMapper
     HEAD_REF main
+    REF ad758592e2c4fa77f0c0e985348f17af8fa24371
 )
 
 # Install codes

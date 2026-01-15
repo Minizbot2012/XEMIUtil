@@ -1,8 +1,7 @@
 {
-    "name": "clib-util",
-    "version-string": "2025-07-31",
-    "license": "MIT",
-    "supports": "windows & x64",
-    "homepage": "https://github.com/powerof3/CLibUtil"
-  }
-  
+  "name": "clib-util",
+  "version-string": "2025-07-31",
+  "license": "MIT",
+  "supports": "windows & x64",
+  "homepage": "https://github.com/powerof3/CLibUtil"
+}

@@ -3,7 +3,7 @@ name: Build Skyrim SE
 on:
   push:
     tags:
-      - '*'
+      - "*"
   workflow_dispatch:
 
 env:
@@ -19,37 +19,37 @@ jobs:
   build:
     runs-on: windows-2025
     steps:
-    - uses: actions/checkout@v5
-    - name: Update VCPKG
-      run: |
-        cd ${{ env.VCPKG_INSTALLATION_ROOT }}
-        bootstrap-vcpkg.bat -disableMetrics
-        vcpkg integrate install
-    - name: vcpkg cache
-      id: vcpkg-cache
-      uses: TAServers/vcpkg-cache@v3
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-    - name: Configure CMake
-      run: cmake --preset ${{env.PRESET}}
-      env:
-        VCPKG_FEATURE_FLAGS: "binarycaching"
-        VCPKG_BINARY_SOURCES: "clear;files,${{ steps.vcpkg-cache.outputs.path }},readwrite"
-    - name: Build
-      run: cmake --build --preset ${{env.PRESET}}
-    - name: Archive
-      run: 7z a ${{ env.PROJECT_NAME }}-SE.zip ./build/release/*.*
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: "Skyrim SE"
-        path: |
+      - uses: actions/checkout@v5
+      - name: Update VCPKG
+        run: |
+          cd ${{ env.VCPKG_INSTALLATION_ROOT }}
+          bootstrap-vcpkg.bat -disableMetrics
+          vcpkg integrate install
+      - name: vcpkg cache
+        id: vcpkg-cache
+        uses: TAServers/vcpkg-cache@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Configure CMake
+        run: cmake --preset ${{env.PRESET}}
+        env:
+          VCPKG_FEATURE_FLAGS: "binarycaching"
+          VCPKG_BINARY_SOURCES: "clear;files,${{ steps.vcpkg-cache.outputs.path }},readwrite"
+      - name: Build
+        run: cmake --build --preset ${{env.PRESET}}
+      - name: Archive
+        run: 7z a ${{ env.PROJECT_NAME }}-SE.zip ./build/release/*.*
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: "Skyrim SE"
+          path: |
             ./build/release/*.*
-    - name: Create & Upload Release
-      id: upload-release
-      uses: softprops/action-gh-release@v2
-      with:
-        files: ${{ env.PROJECT_NAME }}-SE.zip
-        token: ${{ secrets.GITHUB_TOKEN }}
-        name: ${{ env.PROJECT_NAME }} ${{ github.ref_name }}
-      if: github.ref_type == 'tag'
+      - name: Create & Upload Release
+        id: upload-release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.PROJECT_NAME }}-SE.zip
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: ${{ env.PROJECT_NAME }} ${{ github.ref_name }}
+        if: github.ref_type == 'tag'

@@ -1,6 +1,7 @@
 #include <Config.h>
 #include <Hooks.h>
 #include <Plugin.h>
+#include <REL/Version.h>
 
 #ifdef SKYRIM_AE
 extern "C" DLLEXPORT auto SKSEPlugin_Version = []() {
@@ -18,7 +19,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 {
     a_info->infoVersion = SKSE::PluginInfo::kVersion;
     a_info->name = MPL::Plugin::PROJECT.data();
-    a_info->version = MPL::Plugin::MAJOR;
+    a_info->version = REL::Version({MPL::Plugin::MAJOR, MPL::Plugin::MINOR, MPL::Plugin::PATCH}).pack();
     if (a_skse->IsEditor())
     {
         return false;

@@ -17,9 +17,14 @@ namespace MPL::Hooks
                     auto* std = MPL::Config::StatData::GetSingleton();
                     std->LoadConfig();
                     auto fid = a_ref->GetFormID();
-                    auto bid = a_ref->GetBaseObject()->GetFormID();
+                    auto bid = 0x0;
                     if (fid != 0x0)
                     {
+                        auto bobj = a_ref->GetBaseObject();
+                        if (bobj != nullptr)
+                        {
+                            bid = bobj->GetFormID();
+                        }
                         MPL::Config::ConfigEntry* itm = nullptr;
                         for (auto& ent : std->entries | std::views::reverse)
                         {
@@ -28,7 +33,7 @@ namespace MPL::Hooks
                                 itm = &ent;
                                 break;
                             }
-                            if (ent.forms_are_base.value_or(false))
+                            if (bid != 0x0 && ent.forms_are_base.value_or(false))
                             {
                                 if (ent.forms.count(bid))
                                 {
@@ -41,7 +46,7 @@ namespace MPL::Hooks
                         {
                             if (itm->only_interior.value_or(false))
                             {
-                                if (!a_ref->parentCell->IsInteriorCell()) return func(a_ref);
+                                if (!a_ref->parentCell->IsInteriorCell()) goto ret;
                             }
                             if (a_ref->extraList.HasType<RE::ExtraEmittanceSource>())
                             {
@@ -66,6 +71,7 @@ namespace MPL::Hooks
                     }
                 }
             }
+ret:
             return func(a_ref);
         }
         static inline REL::Relocation<decltype(thunk)> func;

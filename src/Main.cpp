@@ -19,7 +19,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 {
     a_info->infoVersion = SKSE::PluginInfo::kVersion;
     a_info->name = MPL::Plugin::PROJECT.data();
-    a_info->version = REL::Version({MPL::Plugin::MAJOR, MPL::Plugin::MINOR, MPL::Plugin::PATCH}).pack();
+    a_info->version = REL::Version(MPL::Plugin::MAJOR, MPL::Plugin::MINOR, MPL::Plugin::PATCH, 0).pack();
     if (a_skse->IsEditor())
     {
         return false;

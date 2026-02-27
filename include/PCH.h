@@ -13,9 +13,6 @@
 #include <rfl/json.hpp>
 #include <windows.h>
 // clang-format on
-const std::unordered_map<std::string, std::string> filename_translation_table = {
-    { "legacyofthedragonbornv5esm" , "legacyofthedragonbornesm" }
-};
 #ifdef SKYRIM_AE
 #    define OFFSET(se, ae) ae
 #    define OFFSET_3(se, ae, vr) ae

@@ -86,8 +86,7 @@ namespace rfl
         static ReflType from(const RE::FormID& v)
         {
             auto frm = RE::TESForm::LookupByID(v);
-            std::pair<const char*, uint32_t> ofid;
-            return std::format("{:06X}:{}", ofid.second, ofid.second);
+            return std::format("{:06X}:{}", frm->GetLocalFormID(), frm->GetFile(0)->GetFilename());
         }
         static RE::FormID to(const ReflType& v)
         {

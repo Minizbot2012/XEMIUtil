@@ -1,11 +1,14 @@
 #pragma once
-#include <MergeMapperPluginAPI.h>
+#include <utility>
+#include <vector>
 namespace MPL::Config
 {
     struct ConfigEntry
     {
         std::unordered_set<RE::FormID> forms;
         RE::FormID xemi;
+        std::optional<bool> only_interior;
+        std::optional<bool> forms_are_base;
     };
     class StatData : public REX::Singleton<StatData>
     {
@@ -35,7 +38,7 @@ namespace MPL::Config
                                 {
                                     for (ConfigEntry ent : this->entries)
                                     {
-                                        if (conf.xemi == ent.xemi)
+                                        if (conf.xemi == ent.xemi && conf.forms_are_base.value_or(false) == ent.forms_are_base.value_or(false) && conf.only_interior.value_or(false) == ent.only_interior.value_or(false))
                                         {
                                             inst = &ent;
                                             break;
@@ -76,7 +79,6 @@ namespace MPL::Config
 
 namespace rfl
 {
-    static bool tried_mmi = false;
     template <>
     struct Reflector<RE::FormID>
     {
@@ -85,19 +87,6 @@ namespace rfl
         {
             auto frm = RE::TESForm::LookupByID(v);
             std::pair<const char*, uint32_t> ofid;
-            if (!tried_mmi && !g_mergeMapperInterface)
-            {
-                MergeMapperPluginAPI::GetMergeMapperInterface001();
-                tried_mmi = true;
-            }
-            if (g_mergeMapperInterface != nullptr && g_mergeMapperInterface->isMerge(frm->sourceFiles.array->front()->GetFilename().data()))
-            {
-                ofid = g_mergeMapperInterface->GetOriginalFormID(frm->sourceFiles.array->front()->GetFilename().data(), frm->GetLocalFormID());
-            }
-            else
-            {
-                ofid = std::make_pair(frm->sourceFiles.array->front()->GetFilename().data(), frm->GetLocalFormID());
-            }
             return std::format("{:06X}:{}", ofid.second, ofid.second);
         }
         static RE::FormID to(const ReflType& v)
@@ -107,17 +96,6 @@ namespace rfl
             {
                 auto lfid = strtoul(v.substr(0, loc).c_str(), nullptr, 16);
                 auto file = v.substr(loc + 1);
-                if (!tried_mmi && !g_mergeMapperInterface)
-                {
-                    MergeMapperPluginAPI::GetMergeMapperInterface001();
-                    tried_mmi = true;
-                }
-                if (g_mergeMapperInterface != nullptr && g_mergeMapperInterface->wasMerged(file.c_str()))
-                {
-                    auto nd = g_mergeMapperInterface->GetNewFormID(file.c_str(), lfid);
-                    file = std::string(nd.first);
-                    lfid = nd.second;
-                }
                 auto dh = RE::TESDataHandler::GetSingleton();
                 return dh->LookupFormID(lfid, file);
             }

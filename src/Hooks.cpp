@@ -1,5 +1,7 @@
+#include "Hooking.h"
 #include <ClibUtil/editorID.hpp>
 #include <Hooks.h>
+#include <RE/T/TESObjectCELL.h>
 namespace MPL::Hooks
 {
     struct ShouldBackgroundClone_TESObjectREFR
@@ -15,6 +17,7 @@ namespace MPL::Hooks
                     auto* std = MPL::Config::StatData::GetSingleton();
                     std->LoadConfig();
                     auto fid = a_ref->GetFormID();
+                    auto bid = a_ref->GetBaseObject()->GetFormID();
                     if (fid != 0x0)
                     {
                         MPL::Config::ConfigEntry* itm = nullptr;
@@ -25,9 +28,21 @@ namespace MPL::Hooks
                                 itm = &ent;
                                 break;
                             }
+                            if (ent.forms_are_base.value_or(false))
+                            {
+                                if (ent.forms.count(bid))
+                                {
+                                    itm = &ent;
+                                    break;
+                                }
+                            }
                         }
-                        if (itm != nullptr && itm->xemi != 0x0 && !(a_ref->sourceFiles.array->back()->GetFilename().starts_with("WSU") || a_ref->sourceFiles.array->back()->GetFilename() == "Synthesis.esp"))
+                        if ((itm != nullptr && itm->xemi != 0x0 && !(a_ref->sourceFiles.array->back()->GetFilename().starts_with("WSU") || a_ref->sourceFiles.array->back()->GetFilename() == "Synthesis.esp")))
                         {
+                            if (itm->only_interior.value_or(false))
+                            {
+                                if (!a_ref->parentCell->IsInteriorCell()) return func(a_ref);
+                            }
                             if (a_ref->extraList.HasType<RE::ExtraEmittanceSource>())
                             {
                                 auto* edr = a_ref->extraList.GetByType<RE::ExtraEmittanceSource>();

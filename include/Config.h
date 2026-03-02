@@ -1,12 +1,12 @@
 #pragma once
-#include <utility>
 #include <vector>
+#include <Forms.h>
 namespace MPL::Config
 {
     struct ConfigEntry
     {
-        std::unordered_set<RE::FormID> forms;
-        RE::FormID xemi;
+        std::unordered_set<Form> forms;
+        std::optional<Form> xemi;
         std::optional<bool> only_interior;
         std::optional<bool> forms_are_base;
     };
@@ -20,10 +20,10 @@ namespace MPL::Config
     public:
         inline void LoadConfig()
         {
+            if (this->config_loaded) return;
             std::lock_guard _guard(this->load_lock);
             if (!this->config_loaded)
             {
-                this->config_loaded = true;
                 if (std::filesystem::exists(this->config_path))
                 {
                     for (auto file : std::filesystem::directory_iterator(this->config_path))
@@ -38,7 +38,7 @@ namespace MPL::Config
                                 {
                                     for (ConfigEntry ent : this->entries)
                                     {
-                                        if (conf.xemi == ent.xemi && conf.forms_are_base.value_or(false) == ent.forms_are_base.value_or(false) && conf.only_interior.value_or(false) == ent.only_interior.value_or(false))
+                                        if (*conf.xemi == *ent.xemi && conf.forms_are_base.value_or(false) == ent.forms_are_base.value_or(false) && conf.only_interior.value_or(false) == ent.only_interior.value_or(false))
                                         {
                                             inst = &ent;
                                             break;
@@ -46,12 +46,10 @@ namespace MPL::Config
                                     }
                                     if (inst == nullptr)
                                     {
-                                        logger::info("Adding new XEMI Entry: {:8X}", conf.xemi);
                                         this->entries.push_back(conf);
                                     }
                                     else
                                     {
-                                        logger::info("Found Merge XEMI {:8X}", inst->xemi);
                                         for (auto form : conf.forms)
                                         {
                                             inst->forms.insert(form);
@@ -71,45 +69,9 @@ namespace MPL::Config
                 {
                     logger::error("Config path does not exist, skipping the loading of records.");
                 }
+                this->config_loaded = true;
             }
         }
         std::vector<ConfigEntry> entries;
     };
 }  // namespace MPL::Config
-
-namespace rfl
-{
-    template <>
-    struct Reflector<RE::FormID>
-    {
-        using ReflType = std::string;
-        static ReflType from(const RE::FormID& v)
-        {
-            auto frm = RE::TESForm::LookupByID(v);
-            return std::format("{:06X}:{}", frm->GetLocalFormID(), frm->GetFile(0)->GetFilename());
-        }
-        static RE::FormID to(const ReflType& v)
-        {
-            auto loc = v.find(":");
-            if (loc != std::string::npos)
-            {
-                auto lfid = strtoul(v.substr(0, loc).c_str(), nullptr, 16);
-                auto file = v.substr(loc + 1);
-                auto dh = RE::TESDataHandler::GetSingleton();
-                return dh->LookupFormID(lfid, file);
-            }
-            else
-            {
-                auto frm = RE::TESForm::LookupByEditorID(v);
-                if (frm)
-                {
-                    return frm->GetFormID();
-                }
-                else
-                {
-                    return RE::FormID(0);
-                }
-            }
-        }
-    };
-}  // namespace rfl

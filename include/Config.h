@@ -1,6 +1,6 @@
 #pragma once
-#include <vector>
 #include <Forms.h>
+#include <vector>
 namespace MPL::Config
 {
     struct ConfigEntry
@@ -38,7 +38,7 @@ namespace MPL::Config
                                 {
                                     for (ConfigEntry ent : this->entries)
                                     {
-                                        if (*conf.xemi == *ent.xemi && conf.forms_are_base.value_or(false) == ent.forms_are_base.value_or(false) && conf.only_interior.value_or(false) == ent.only_interior.value_or(false))
+                                        if (conf.xemi.has_value() && *conf.xemi == *conf.xemi && conf.forms_are_base.value_or(false) == ent.forms_are_base.value_or(false) && conf.only_interior.value_or(false) == ent.only_interior.value_or(false))
                                         {
                                             inst = &ent;
                                             break;

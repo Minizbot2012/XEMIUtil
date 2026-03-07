@@ -6,7 +6,8 @@ namespace MPL::Config
     struct ConfigEntry
     {
         std::unordered_set<Form> forms;
-        std::optional<Form> xemi;
+        Form xemi;
+        std::optional<bool> remove;
         std::optional<bool> only_interior;
         std::optional<bool> forms_are_base;
     };
@@ -38,7 +39,7 @@ namespace MPL::Config
                                 {
                                     for (ConfigEntry ent : this->entries)
                                     {
-                                        if (conf.xemi.has_value() && *conf.xemi == *conf.xemi && conf.forms_are_base.value_or(false) == ent.forms_are_base.value_or(false) && conf.only_interior.value_or(false) == ent.only_interior.value_or(false))
+                                        if (conf.forms_are_base.value_or(false) == ent.forms_are_base.value_or(false) && conf.only_interior.value_or(false) == ent.only_interior.value_or(false) && conf.xemi == ent.xemi)
                                         {
                                             inst = &ent;
                                             break;

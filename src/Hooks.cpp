@@ -43,25 +43,25 @@ namespace MPL::Hooks
                                 }
                             }
                         }
-                        if ((itm != nullptr && !itm->xemi.has_value() && !(a_ref->sourceFiles.array->back()->GetFilename().starts_with("WSU") || a_ref->sourceFiles.array->back()->GetFilename() == "Synthesis.esp")))
+                        if ((itm != nullptr && !itm->xemi.IsNull() && !(a_ref->sourceFiles.array->back()->GetFilename().starts_with("WSU") || a_ref->sourceFiles.array->back()->GetFilename() == "Synthesis.esp")))
                         {
                             if (itm->only_interior.value_or(false))
                             {
                                 if (!a_ref->parentCell->IsInteriorCell()) goto ret;
                             }
-                            if (a_ref->extraList.HasType<RE::ExtraEmittanceSource>() && itm->xemi.has_value())
+                            if (a_ref->extraList.HasType<RE::ExtraEmittanceSource>() && !itm->xemi.IsNull())
                             {
                                 auto* edr = a_ref->extraList.GetByType<RE::ExtraEmittanceSource>();
-                                auto* frm = *(*itm->xemi);
+                                auto* frm = *itm->xemi;
 #ifdef DEBUG
                                 logger::info("(INIT)(REP): {:X}:{} -> {:X}:{} W/ {:X}:{}", a_ref->GetLocalFormID(), a_ref->sourceFiles.array->front()->GetFilename(), edr->source->GetLocalFormID(), edr->source->sourceFiles.array->front()->GetFilename(), frm->GetLocalFormID(), frm->sourceFiles.array->front()->GetFilename());
 #endif
                                 if (frm != nullptr)
                                     edr->source = frm;
                             }
-                            else if (itm->xemi.has_value())
+                            else if (!itm->xemi.IsNull())
                             {
-                                auto* frm = *(*itm->xemi);
+                                auto* frm = *itm->xemi;
                                 if (frm != nullptr)
                                 {
 #ifdef DEBUG
@@ -72,8 +72,10 @@ namespace MPL::Hooks
                                     a_ref->extraList.Add(ext);
                                 }
                             }
-                            else {
-                                if(a_ref->extraList.HasType<RE::ExtraEmittanceSource>()) {
+                            else if (itm->xemi.IsNull() && itm->remove.value_or(false))
+                            {
+                                if (a_ref->extraList.HasType<RE::ExtraEmittanceSource>())
+                                {
                                     a_ref->extraList.RemoveByType(RE::ExtraDataType::kEmittanceSource);
                                 }
                             }

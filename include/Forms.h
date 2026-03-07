@@ -24,7 +24,7 @@ namespace MPL::Config
         };
         bool IsNull() const
         {
-            return RE::TESForm::LookupByID(formID) == nullptr;
+            return formID == 0x0 || RE::TESForm::LookupByID(formID) == nullptr;
         };
         static Form FromFormID(const RE::FormID fid)
         {
@@ -65,6 +65,9 @@ namespace rfl
         }
         static MPL::Config::Form to(const ReflType& v)
         {
+            if(v == "null") {
+                return MPL::Config::Form::FromFormID(0x0);
+            }
             auto loc = v.find(":");
             if (loc != std::string::npos)
             {

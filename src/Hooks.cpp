@@ -43,7 +43,7 @@ namespace MPL::Hooks
                                 }
                             }
                         }
-                        if ((itm != nullptr && !itm->xemi.IsNull() && !(a_ref->sourceFiles.array->back()->GetFilename().starts_with("WSU") || a_ref->sourceFiles.array->back()->GetFilename() == "Synthesis.esp")))
+                        if ((itm != nullptr && !(a_ref->sourceFiles.array->back()->GetFilename().starts_with("WSU") || a_ref->sourceFiles.array->back()->GetFilename() == "Synthesis.esp")))
                         {
                             if (itm->only_interior.value_or(false))
                             {

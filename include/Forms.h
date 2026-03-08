@@ -16,11 +16,11 @@ namespace MPL::Config
         };
         bool operator==(const Form& other) const
         {
-            return this->formID == other.formID;
+            return formID == other.formID;
         };
         RE::FormID GetFormID() const
         {
-            return this->formID;
+            return formID;
         };
         bool IsNull() const
         {

@@ -39,7 +39,7 @@ namespace MPL::Config
                                 {
                                     for (ConfigEntry ent : this->entries)
                                     {
-                                        if (conf.forms_are_base.value_or(false) == ent.forms_are_base.value_or(false) && conf.only_interior.value_or(false) == ent.only_interior.value_or(false) && conf.xemi == ent.xemi)
+                                        if (conf.remove.value_or(false) == ent.remove.value_or(false) && conf.forms_are_base.value_or(false) == ent.forms_are_base.value_or(false) && conf.only_interior.value_or(false) == ent.only_interior.value_or(false) && conf.xemi.formID == ent.xemi.formID)
                                         {
                                             inst = &ent;
                                             break;

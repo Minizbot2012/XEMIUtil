@@ -8,8 +8,9 @@ namespace MPL::Hooks
     struct ShouldBackgroundClone_TESObjectREFR
     {
         using Target = RE::TESObjectREFR;
-        static inline bool thunk(Target* a_ref)
+        static inline void thunk(Target* a_ref)
         {
+            func(a_ref);
             if (a_ref != nullptr)
             {
                 auto ref = a_ref->GetObjectReference();
@@ -53,11 +54,13 @@ namespace MPL::Hooks
                             {
                                 auto* edr = a_ref->extraList.GetByType<RE::ExtraEmittanceSource>();
                                 auto* frm = *itm->xemi;
-#ifdef DEBUG
-                                logger::info("(INIT)(REP): {:X}:{} -> {:X}:{} W/ {:X}:{}", a_ref->GetLocalFormID(), a_ref->sourceFiles.array->front()->GetFilename(), edr->source->GetLocalFormID(), edr->source->sourceFiles.array->front()->GetFilename(), frm->GetLocalFormID(), frm->sourceFiles.array->front()->GetFilename());
-#endif
                                 if (frm != nullptr)
+                                {
+#ifdef DEBUG
+                                    logger::info("(INIT)(REP): {:X}:{} -> {:X}:{} W/ {:X}:{}", a_ref->GetLocalFormID(), a_ref->sourceFiles.array->front()->GetFilename(), edr->source->GetLocalFormID(), edr->source->sourceFiles.array->front()->GetFilename(), frm->GetLocalFormID(), frm->sourceFiles.array->front()->GetFilename());
+#endif
                                     edr->source = frm;
+                                }
                             }
                             else if (!itm->xemi.IsNull())
                             {
@@ -84,10 +87,10 @@ namespace MPL::Hooks
                 }
             }
 ret:
-            return func(a_ref);
+            return;
         }
         static inline REL::Relocation<decltype(thunk)> func;
-        static inline constexpr std::size_t index{ 0x6D };
+        static inline constexpr std::size_t index{ 0x13 };
     };
     void Install()
     {

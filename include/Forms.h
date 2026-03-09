@@ -18,6 +18,14 @@ namespace MPL::Config
         {
             return formID == other.formID;
         };
+        bool operator>(const Form& other) const
+        {
+            return formID > other.formID;
+        };
+        bool operator<(const Form& other) const
+        {
+            return formID < other.formID;
+        };
         RE::FormID GetFormID() const
         {
             return formID;
@@ -65,7 +73,8 @@ namespace rfl
         }
         static MPL::Config::Form to(const ReflType& v)
         {
-            if(v == "null") {
+            if (v == "null")
+            {
                 return MPL::Config::Form::FromFormID(0x0);
             }
             auto loc = v.find(":");

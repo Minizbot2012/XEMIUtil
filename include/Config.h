@@ -34,28 +34,9 @@ namespace MPL::Config
                             auto cfg = rfl::json::load<std::vector<ConfigEntry>>(file.path().string());
                             if (cfg)
                             {
-                                ConfigEntry* inst = nullptr;
                                 for (auto& conf : *cfg)
                                 {
-                                    for (ConfigEntry ent : this->entries)
-                                    {
-                                        if (conf.remove.value_or(false) == ent.remove.value_or(false) && conf.forms_are_base.value_or(false) == ent.forms_are_base.value_or(false) && conf.only_interior.value_or(false) == ent.only_interior.value_or(false) && conf.xemi.formID == ent.xemi.formID)
-                                        {
-                                            inst = &ent;
-                                            break;
-                                        }
-                                    }
-                                    if (inst == nullptr)
-                                    {
-                                        this->entries.push_back(conf);
-                                    }
-                                    else
-                                    {
-                                        for (auto form : conf.forms)
-                                        {
-                                            inst->forms.insert(form);
-                                        }
-                                    }
+                                    this->entries.push_back(conf);
                                 }
                             }
                             else

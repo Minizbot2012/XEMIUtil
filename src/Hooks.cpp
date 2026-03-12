@@ -14,6 +14,7 @@ namespace MPL::Hooks
             if (a_ref != nullptr)
             {
                 auto ref = a_ref->GetObjectReference();
+                auto cll = a_ref->GetParentCell();
                 if (ref != nullptr && (ref->Is(RE::FormType::MovableStatic) || ref->Is(RE::FormType::Static) || ref->Is(RE::FormType::Light)))
                 {
                     auto* std = MPL::Config::StatData::GetSingleton();
@@ -30,6 +31,10 @@ namespace MPL::Hooks
                         MPL::Config::ConfigEntry* itm = nullptr;
                         for (auto& ent : std->entries | std::views::reverse)
                         {
+                            if (ent.allowed_cells && !ent.allowed_cells.value().count(MPL::Config::Form::FromForm(cll)))
+                            {
+                                continue;
+                            }
                             if (ent.forms.count(MPL::Config::Form::FromFormID(fid)))
                             {
                                 itm = &ent;

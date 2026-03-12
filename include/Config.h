@@ -1,5 +1,6 @@
 #pragma once
 #include <Forms.h>
+#include <unordered_set>
 #include <vector>
 namespace MPL::Config
 {
@@ -7,6 +8,7 @@ namespace MPL::Config
     {
         std::unordered_set<Form> forms;
         Form xemi;
+        std::optional<std::unordered_set<Form>> allowed_cells;
         std::optional<bool> remove;
         std::optional<bool> only_interior;
         std::optional<bool> forms_are_base;

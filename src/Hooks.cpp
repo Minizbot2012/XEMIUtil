@@ -1,8 +1,6 @@
 #include <ClibUtil/editorID.hpp>
 #include <Config.h>
 #include <Hooks.h>
-#include <RE/E/ExtraDataTypes.h>
-#include <RE/E/ExtraEmittanceSource.h>
 namespace MPL::Hooks
 {
     struct ShouldBackgroundClone_TESObjectREFR
@@ -31,18 +29,18 @@ namespace MPL::Hooks
                         MPL::Config::ConfigEntry* itm = nullptr;
                         for (auto& ent : std->entries | std::views::reverse)
                         {
-                            if (ent.allowed_cells && !ent.allowed_cells.value().count(MPL::Config::Form::FromForm(cll)))
+                            if (ent.allowed_cells && !ent.allowed_cells.value().count(MPL::Config::LiteForm::FromID(cll->formID)))
                             {
                                 continue;
                             }
-                            if (ent.forms.count(MPL::Config::Form::FromFormID(fid)))
+                            if (ent.forms.count(MPL::Config::LiteForm::FromID(fid)))
                             {
                                 itm = &ent;
                                 break;
                             }
                             if (bid != 0x0 && ent.forms_are_base.value_or(false))
                             {
-                                if (ent.forms.count(MPL::Config::Form::FromFormID(bid)))
+                                if (ent.forms.count(MPL::Config::LiteForm::FromID(bid)))
                                 {
                                     itm = &ent;
                                     break;
@@ -55,10 +53,10 @@ namespace MPL::Hooks
                             {
                                 if (!a_ref->parentCell->IsInteriorCell()) goto ret;
                             }
-                            if (a_ref->extraList.HasType<RE::ExtraEmittanceSource>() && !itm->xemi.IsNull())
+                            if (a_ref->extraList.HasType<RE::ExtraEmittanceSource>() && itm->xemi.formID != 0x0)
                             {
                                 auto* edr = a_ref->extraList.GetByType<RE::ExtraEmittanceSource>();
-                                auto* frm = *itm->xemi;
+                                auto* frm = itm->xemi.Get<RE::TESForm>();
                                 if (frm != nullptr)
                                 {
 #ifdef DEBUG
@@ -67,9 +65,9 @@ namespace MPL::Hooks
                                     edr->source = frm;
                                 }
                             }
-                            else if (!itm->xemi.IsNull())
+                            else if (itm->xemi.formID != 0x0)
                             {
-                                auto* frm = *itm->xemi;
+                                auto* frm = itm->xemi.Get<RE::TESForm>();
                                 if (frm != nullptr)
                                 {
 #ifdef DEBUG
@@ -80,7 +78,7 @@ namespace MPL::Hooks
                                     a_ref->extraList.Add(ext);
                                 }
                             }
-                            else if (itm->xemi.IsNull() && itm->remove.value_or(false))
+                            else if (itm->xemi.formID == 0x0 && itm->remove.value_or(false))
                             {
                                 if (a_ref->extraList.HasType<RE::ExtraEmittanceSource>())
                                 {

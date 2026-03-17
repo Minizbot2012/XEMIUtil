@@ -1,14 +1,14 @@
 #pragma once
-#include <Forms.h>
 #include <unordered_set>
+#include <Forms.h>
 #include <vector>
 namespace MPL::Config
 {
     struct ConfigEntry
     {
-        std::unordered_set<Form> forms;
-        Form xemi;
-        std::optional<std::unordered_set<Form>> allowed_cells;
+        std::unordered_set<LiteForm> forms;
+        LiteForm xemi;
+        std::optional<std::unordered_set<LiteForm>> allowed_cells;
         std::optional<bool> remove;
         std::optional<bool> only_interior;
         std::optional<bool> forms_are_base;

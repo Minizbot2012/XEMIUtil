@@ -2,6 +2,8 @@
 #include <Hooks.h>
 #include <Plugin.h>
 #include <REL/Version.h>
+#include <SKSE/Logger.h>
+#include <spdlog/spdlog.h>
 
 #ifdef SKYRIM_AE
 extern "C" DLLEXPORT auto SKSEPlugin_Version = []() {

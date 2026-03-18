@@ -3,7 +3,7 @@
 #include <Hooks.h>
 namespace MPL::Hooks
 {
-    struct ShouldBackgroundClone_TESObjectREFR
+    struct InitItemImpl_TESObjectREFR
     {
         using Target = RE::TESObjectREFR;
         static inline void thunk(Target* a_ref)
@@ -47,7 +47,7 @@ namespace MPL::Hooks
                                 }
                             }
                         }
-                        if ((itm != nullptr && !(a_ref->sourceFiles.array->back()->GetFilename().starts_with("WSU") || a_ref->sourceFiles.array->back()->GetFilename() == "Synthesis.esp")))
+                        if (itm != nullptr)
                         {
                             if (itm->only_interior.value_or(false))
                             {
@@ -92,14 +92,15 @@ namespace MPL::Hooks
 ret:
             return;
         }
-        static inline void post_hook() {
-            logger::info("SBC Hook installed");
+        static inline void post_hook()
+        {
+            logger::info("InitItemImpl_TESObjectREFR hook installed");
         }
         static inline REL::Relocation<decltype(thunk)> func;
         static inline constexpr std::size_t index{ 0x13 };
     };
     void Install()
     {
-        stl::install_hook<ShouldBackgroundClone_TESObjectREFR>();
+        stl::install_hook<InitItemImpl_TESObjectREFR>();
     };
 }  // namespace MPL::Hooks

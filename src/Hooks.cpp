@@ -29,7 +29,7 @@ namespace MPL::Hooks
                         MPL::Config::ConfigEntry* itm = nullptr;
                         for (auto& ent : std->entries | std::views::reverse)
                         {
-                            if (ent.allowed_cells && !ent.allowed_cells.value().count(MPL::Config::LiteForm::FromID(cll->formID)))
+                            if (ent.allowed_cells && (cll == nullptr || !ent.allowed_cells.value().count(MPL::Config::LiteForm::FromID(cll->formID))))
                             {
                                 continue;
                             }
@@ -51,7 +51,7 @@ namespace MPL::Hooks
                         {
                             if (itm->only_interior.value_or(false))
                             {
-                                if (!a_ref->parentCell->IsInteriorCell()) goto ret;
+                                if (cll == nullptr || !a_ref->parentCell->IsInteriorCell()) goto ret;
                             }
                             if (a_ref->extraList.HasType<RE::ExtraEmittanceSource>() && itm->xemi.formID != 0x0)
                             {
@@ -91,6 +91,9 @@ namespace MPL::Hooks
             }
 ret:
             return;
+        }
+        static inline void post_hook() {
+            logger::info("SBC Hook installed");
         }
         static inline REL::Relocation<decltype(thunk)> func;
         static inline constexpr std::size_t index{ 0x13 };

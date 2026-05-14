@@ -1,5 +1,6 @@
 #pragma once
 
+#include "REL/Module.h"
 #define ByteAt(addr) *reinterpret_cast<std::uint8_t*>(addr)
 
 /// Declraing a pre_hook function allows Hook to receive a call before the main hook will be installed.
@@ -74,6 +75,24 @@ concept vtable_hook = hook<Hook> && requires {
     requires(has_vtable<typename Hook::Target>);
 };
 
+template <typename Hook>
+concept vtable_hook_se = hook<Hook> && requires {
+    {
+        Hook::index_se
+    } -> std::convertible_to<std::size_t>;
+    requires(has_vtable<typename Hook::Target>);
+};
+
+/// Defines required fields for a valid vtable hook.
+/// Note that providing a custom vtable index is optional, if ommited `0`th table will be used by default.
+template <typename Hook>
+concept vtable_hook_vr = hook<Hook> && requires {
+    {
+        Hook::index_vr
+    } -> std::convertible_to<std::size_t>;
+    requires(has_vtable<typename Hook::Target>);
+};
+
 /// Allows to provide a custom vtable index for a vtable hook.
 /// Note that providing a custom vtable index is optional, if ommited `0`th table will be used by default.
 template <typename Hook>
@@ -125,6 +144,22 @@ namespace stl
     void write_vfunc()
     {
         REL::Relocation<std::uintptr_t> vtbl{ F::VTABLE[details::get_vtable<Hook>()] };
+        if (REL::Module::IsVR())
+        {
+            if constexpr (vtable_hook_vr<Hook>)
+            {
+                details::set_func<Hook>(vtbl.write_vfunc(Hook::index_vr, Hook::thunk));
+                return;
+            }
+        }
+        if (REL::Module::IsSE())
+        {
+            if constexpr (vtable_hook_se<Hook>)
+            {
+                details::set_func<Hook>(vtbl.write_vfunc(Hook::index_se, Hook::thunk));
+                return;
+            }
+        }
         details::set_func<Hook>(vtbl.write_vfunc(Hook::index, Hook::thunk));
     }
 

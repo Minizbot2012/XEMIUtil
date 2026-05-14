@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  PRESET: "vs2026-windows-vcpkg-ae"
+  PRESET: "vs2026-windows-vcpkg"
   PROJECT_NAME: XEMIUtil
   VCPKG_ROOT: "C:\\vcpkg"
 

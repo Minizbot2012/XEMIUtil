@@ -1,4 +1,4 @@
-name: Build Skyrim VR
+name: Build Skyrim AE
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  PRESET: "vs2022-windows-vcpkg-vr"
+  PRESET: "vs2026-windows-vcpkg-ae"
   PROJECT_NAME: XEMIUtil
   VCPKG_ROOT: "C:\\vcpkg"
 
@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: windows-2025
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5
       - name: Update VCPKG
@@ -25,31 +25,23 @@ jobs:
           cd ${{ env.VCPKG_INSTALLATION_ROOT }}
           bootstrap-vcpkg.bat -disableMetrics
           vcpkg integrate install
-      - name: vcpkg cache
-        id: vcpkg-cache
-        uses: TAServers/vcpkg-cache@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Configure CMake
         run: cmake --preset ${{env.PRESET}}
-        env:
-          VCPKG_FEATURE_FLAGS: "binarycaching"
-          VCPKG_BINARY_SOURCES: "clear;files,${{ steps.vcpkg-cache.outputs.path }},readwrite"
       - name: Build
         run: cmake --build --preset ${{env.PRESET}}
       - name: Archive
-        run: 7z a ${{ env.PROJECT_NAME }}-VR.zip ./buildvr/release/*.*
+        run: 7z a ${{ env.PROJECT_NAME }}-AE.zip ./buildae/release/*.*
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: "Skyrim VR"
+          name: "Skyrim AE"
           path: |
-            ./buildvr/release/*.*
+            ./buildae/release/*.*
       - name: Create & Upload Release
         id: upload-release
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ env.PROJECT_NAME }}-VR.zip
+          files: ${{ env.PROJECT_NAME }}-AE.zip
           token: ${{ secrets.GITHUB_TOKEN }}
           name: ${{ env.PROJECT_NAME }} ${{ github.ref_name }}
         if: github.ref_type == 'tag'

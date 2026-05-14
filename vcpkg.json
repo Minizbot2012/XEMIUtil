@@ -1,36 +1,35 @@
 {
   "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
   "version-string": "1",
-  "dependencies": ["reflectcpp", "clib-util", "mergemapper", "ctre"],
-  "features": {
-    "ae": {
-      "description": "Build for AE",
-      "dependencies": [
-        {
-          "name": "commonlibsse",
-          "features": [
-            {
-              "name": "skyrimae"
-            }
-          ]
-        }
-      ]
+  "dependencies": [
+    "reflectcpp",
+    "ctre",
+    "clib-util",
+    "mergemapper",
+    "catch2",
+    {
+      "name": "directxmath",
+      "version>=": "2025-04-03"
     },
-    "sse": {
-      "description": "Build for SSE",
-      "dependencies": [
-        {
-          "name": "commonlibsse"
-        }
-      ]
+    {
+      "name": "directxtk",
+      "version>=": "2025-10-27"
     },
-    "vr": {
-      "description": "Build for VR",
-      "dependencies": [
-        {
-          "name": "commonlibvr"
-        }
-      ]
+    {
+      "name": "fmt",
+      "version>=": "12.1.0"
+    },
+    {
+      "name": "rapidcsv",
+      "version>=": "8.90"
+    },
+    {
+      "name": "spdlog",
+      "version>=": "1.16.0"
+    },
+    {
+      "name": "xbyak",
+      "version>=": "7.28"
     }
-  }
+  ]
 }

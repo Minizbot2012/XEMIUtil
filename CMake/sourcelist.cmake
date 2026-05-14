@@ -1,4 +1,1 @@
-set(sources ${sources}
-	src/Hooks.cpp
-	src/Main.cpp
-)
+file(GLOB sources src/**.cpp)

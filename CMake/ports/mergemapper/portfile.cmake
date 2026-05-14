@@ -2,8 +2,8 @@
 vcpkg_from_git(
     OUT_SOURCE_PATH SOURCE_PATH
     URL https://github.com/alandtse/MergeMapper
-    HEAD_REF main
     REF ad758592e2c4fa77f0c0e985348f17af8fa24371
+    HEAD_REF main
 )
 
 # Install codes

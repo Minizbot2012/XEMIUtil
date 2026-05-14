@@ -5,12 +5,13 @@
 #include <REL/Version.h>
 
 SKSEPluginInfo(
-        .Version = REL::Version{ MPL::Plugin::MAJOR, MPL::Plugin::MINOR, MPL::Plugin::PATCH, 0 },
+    .Version = REL::Version{ MPL::Plugin::MAJOR, MPL::Plugin::MINOR, MPL::Plugin::PATCH, 0 },
     .Name = "VPC-SKSE"sv,
     .Author = "Mini"sv,
     .SupportEmail = ""sv,
     .StructCompatibility = SKSE::StructCompatibility::Independent,
-    .RuntimeCompatibility = SKSE::VersionIndependence::AddressLibrary);
+    .RuntimeCompatibility = SKSE::VersionIndependence::AddressLibrary
+);
 
 SKSEPluginLoad(const SKSE::LoadInterface* a_skse)
 {

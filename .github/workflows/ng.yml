@@ -34,9 +34,9 @@ jobs:
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: "Skyrim AE"
+          name: "Skyrim NG"
           path: |
-            ./buildae/release/*.*
+            ./build/release/*.*
       - name: Create & Upload Release
         id: upload-release
         uses: softprops/action-gh-release@v2

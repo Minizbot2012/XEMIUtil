@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 set(NAME "XEMIUtil" CACHE STRING "")
 set(VERSION 1.5.0.0 CACHE STRING "")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # ---- Cache build vars ----
 
@@ -57,7 +58,7 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF)
 
 # ---- Add source files ----
-
+set(BUILD_TESTS OFF CACHE BOOL "Disable Tests" FORCE)
 add_subdirectory(extern/CommonLibSSE)
 include(CMake/headerlist.cmake)
 include(CMake/sourcelist.cmake)

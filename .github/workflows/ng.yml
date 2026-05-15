@@ -20,6 +20,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          submodules: recursive
       - name: Update VCPKG
         run: |
           cd ${{ env.VCPKG_INSTALLATION_ROOT }}

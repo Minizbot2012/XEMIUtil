@@ -4,7 +4,6 @@
   "dependencies": [
     "reflectcpp",
     "ctre",
-    "clib-util",
     "mergemapper",
     "catch2",
     {

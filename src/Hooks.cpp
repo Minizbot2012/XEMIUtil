@@ -97,7 +97,7 @@ ret:
             logger::info("InitItemImpl_TESObjectREFR hook installed");
         }
         static inline REL::Relocation<decltype(thunk)> func;
-        static inline constexpr std::size_t index{ 0x13 };
+        static inline constexpr VariantIndex index = VariantIndex(0x13);
     };
     void Install()
     {

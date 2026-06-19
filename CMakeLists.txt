@@ -45,15 +45,6 @@ if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
  )
 endif()
 
-
-if (MSVC)
-  if (NOT ${CMAKE_GENERATOR} STREQUAL "Ninja")
-    add_compile_options(
-   /MP	# Build with Multiple Processes
-  )
-  endif ()
-endif ()
-
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF)
 

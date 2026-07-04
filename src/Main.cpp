@@ -1,6 +1,7 @@
-#include "SKSE/Interfaces.h"
+#include <SKSE/Interfaces.h>
 #include <Config.h>
 #include <Hooks.h>
+#include <LPPatch.h>
 #include <Plugin.h>
 #include <REL/Version.h>
 
@@ -18,5 +19,6 @@ SKSEPluginLoad(const SKSE::LoadInterface* a_skse)
     SKSE::Init(a_skse);
     logger::info("Game version : {}", a_skse->RuntimeVersion().string());
     MPL::Hooks::Install();
+    MPL::LPPatch::Install();
     return true;
 }

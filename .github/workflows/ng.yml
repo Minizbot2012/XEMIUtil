@@ -32,7 +32,7 @@ jobs:
       - name: Build
         run: cmake --build --preset ${{env.PRESET}}
       - name: Archive
-        run: 7z a ${{ env.PROJECT_NAME }}-AE.zip ./buildae/release/*.*
+        run: 7z a ${{ env.PROJECT_NAME }}.zip ./build/release/*.*
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -43,7 +43,7 @@ jobs:
         id: upload-release
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ env.PROJECT_NAME }}-AE.zip
+          files: ${{ env.PROJECT_NAME }}.zip
           token: ${{ secrets.GITHUB_TOKEN }}
           name: ${{ env.PROJECT_NAME }} ${{ github.ref_name }}
         if: github.ref_type == 'tag'

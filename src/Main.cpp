@@ -7,7 +7,7 @@
 
 SKSEPluginInfo(
     .Version = REL::Version{ MPL::Plugin::MAJOR, MPL::Plugin::MINOR, MPL::Plugin::PATCH, 0 },
-    .Name = "VPC-SKSE"sv,
+    .Name = "XEMIUtil"sv,
     .Author = "Mini"sv,
     .SupportEmail = ""sv,
     .StructCompatibility = SKSE::StructCompatibility::Independent,

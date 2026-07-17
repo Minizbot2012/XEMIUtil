@@ -50,7 +50,7 @@ namespace MPL::Hooks
                         {
                             if (itm->only_interior.value_or(false))
                             {
-                                if (cll == nullptr || !a_ref->parentCell->IsInteriorCell()) goto ret;
+                                if (cll == nullptr || !a_ref->parentCell->IsInteriorCell()) return;
                             }
                             if (a_ref->extraList.HasType<RE::ExtraEmittanceSource>() && itm->xemi.formID != 0x0)
                             {
@@ -58,7 +58,7 @@ namespace MPL::Hooks
                                 auto* frm = itm->xemi.Get<RE::TESForm>();
                                 if (frm != nullptr)
                                 {
-#ifdef DEBUG
+#ifndef NDEBUG
                                     logger::info("(INIT)(REP): {:X}:{} -> {:X}:{} W/ {:X}:{}", a_ref->GetLocalFormID(), a_ref->sourceFiles.array->front()->GetFilename(), edr->source->GetLocalFormID(), edr->source->sourceFiles.array->front()->GetFilename(), frm->GetLocalFormID(), frm->sourceFiles.array->front()->GetFilename());
 #endif
                                     edr->source = frm;
@@ -69,7 +69,7 @@ namespace MPL::Hooks
                                 auto* frm = itm->xemi.Get<RE::TESForm>();
                                 if (frm != nullptr)
                                 {
-#ifdef DEBUG
+#ifndef NDEBUG
                                     logger::info("(INIT)(CRE): {:X}:{} -> {:X}:{}", a_ref->GetLocalFormID(), a_ref->sourceFiles.array->front()->GetFilename(), frm->GetLocalFormID(), frm->sourceFiles.array->front()->GetFilename());
 #endif
                                     auto* ext = RE::BSExtraData::Create<RE::ExtraEmittanceSource>();
@@ -88,7 +88,6 @@ namespace MPL::Hooks
                     }
                 }
             }
-ret:
             return;
         }
         static inline void post_hook()

@@ -3,9 +3,6 @@
   "version-string": "1",
   "dependencies": [
     "reflectcpp",
-    "ctre",
-    "mergemapper",
-    "catch2",
     {
       "name": "directxmath",
       "version>=": "2025-04-03"

@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema",
+  "type": "object",
+  "required": [
+    "forms",
+    "xemi"
+  ],
+  "description": "XEMI Objects contained within an array.",
+  "properties": {
+    "forms": {
+      "type": "array",
+      "description": "List of Form IDs / Base ID's or Editor IDs of the equivlant",
+      "items": {
+        "pattern": "[a-zA-Z\\_\\-0-9]*|[0-9A-Fa-f]{6}:.*\\.[Ee][Ss]\\.[PMLpml]$",
+        "type": "string"
+      }
+    },
+    "xemi": {
+      "type": "string",
+      "description": "Value of xemi (region) record",
+      "pattern": "[a-zA-Z\\_\\-0-9]*|[0-9A-Fa-f]{6}:.*\\.[Ee][Ss]\\.[PMLpml]|null$"
+    },
+    "remove": {
+      "type": "boolean",
+      "description": "Remove the XEMI if xemi is \"null\""
+    },
+    "only_interior": {
+      "type": "boolean",
+      "description": "only modify interior references"
+    },
+    "forms_are_base": {
+      "type": "boolean",
+      "description": "forms are using base id's rather than reference id's"
+    }
+  }
+}

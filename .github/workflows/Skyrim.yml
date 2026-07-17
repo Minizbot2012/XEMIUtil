@@ -7,9 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  PRESET: "vs2026-windows-vcpkg"
   PROJECT_NAME: XEMIUtil
-  VCPKG_ROOT: "C:\\vcpkg"
 
 permissions:
   actions: read
@@ -19,29 +17,27 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
-      - name: Update VCPKG
-        run: |
-          cd ${{ env.VCPKG_INSTALLATION_ROOT }}
-          bootstrap-vcpkg.bat -disableMetrics
-          vcpkg integrate install
-      - name: Configure CMake
-        run: cmake --preset ${{env.PRESET}}
-      - name: Build
-        run: cmake --build --preset ${{env.PRESET}}
-      - name: Archive
-        run: 7z a ${{ env.PROJECT_NAME }}.zip ./build/release/*.*
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v4
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
         with:
-          name: "Skyrim NG"
+          xmake-version: latest
+      - name: Build
+        run: xmake -y
+      - name: Archive
+        run: 7z a -tzip ${{ env.PROJECT_NAME }}.zip ./build/windows/x64/release/${{ env.PROJECT_NAME }}.dll ./build/windows/x64/release/${{ env.PROJECT_NAME }}.pdb
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: Skyrim
           path: |
-            ./build/release/*.*
+            ./build/windows/x64/release/LumaUtil.dll
+            ./build/windows/x64/release/LumaUtil.pdb
       - name: Create & Upload Release
         id: upload-release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: ${{ env.PROJECT_NAME }}.zip
           token: ${{ secrets.GITHUB_TOKEN }}

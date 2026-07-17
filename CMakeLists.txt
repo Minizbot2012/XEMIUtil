@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.20)
-set(NAME "XEMIUtil" CACHE STRING "")
-set(VERSION 1.5.0.0 CACHE STRING "")
+cmake_minimum_required(VERSION 3.40)
+set(NAME "LumaUtil" CACHE STRING "")
+set(VERSION 1.9.0.0 CACHE STRING "")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # ---- Cache build vars ----
@@ -11,7 +11,6 @@ macro(set_from_environment VARIABLE)
   endif ()
 endmacro()
 set_from_environment(VCPKG_ROOT)
-
 
 if (DEFINED VCPKG_ROOT)
   set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
@@ -48,6 +47,7 @@ endif()
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF)
 
+
 # ---- Add source files ----
 set(BUILD_TESTS OFF CACHE BOOL "Disable Tests" FORCE)
 add_subdirectory(extern/CommonLibSSE)
@@ -67,8 +67,6 @@ source_group(
   ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-find_path(MERGEMAPPER_INCLUDE_DIRS "MergeMapperPluginAPI.h")
-
 # ---- Create DLL ----
 
 add_library(
@@ -76,7 +74,6 @@ add_library(
  SHARED
  ${headers}
  ${sources}
- ${MERGEMAPPER_INCLUDE_DIRS}/MergeMapperPluginAPI.cpp
 )
 
 target_compile_features(
@@ -90,18 +87,15 @@ target_include_directories(
  PRIVATE
   ${CMAKE_CURRENT_BINARY_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${MERGEMAPPER_INCLUDE_DIRS}
 )
 
 find_package(reflectcpp CONFIG REQUIRED)
-find_package(ctre CONFIG REQUIRED)
 
 target_link_libraries(
  ${PROJECT_NAME}
  PRIVATE
   CommonLibSSE::CommonLibSSE
   reflectcpp::reflectcpp
-  ctre::ctre
 )
 
 target_precompile_headers(
@@ -120,6 +114,7 @@ if (MSVC)
    /MD
    /permissive-     # Standards conformance
    /Zc:preprocessor # Enable preprocessor conformance mode
+
    /wd4200          # nonstandard extension used : zero-sized array in struct/union
 
    "$<$<CONFIG:DEBUG>:>"

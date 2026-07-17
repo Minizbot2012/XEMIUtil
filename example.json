@@ -1,0 +1,18 @@
+{
+  "$schema": "Schemas/xemi.json",
+  "forms": [
+    "0C1316:Update.esm",
+    "0C49F5:Update.esm",
+    "095C25:Update.esm",
+    "0B829A:Update.esm",
+    "0B8295:Update.esm",
+    "0B8293:Update.esm",
+    "0DDF94:Update.esm",
+    "0C0EAC:Update.esm",
+    "0695FD:Update.esm"
+  ],
+  "xemi": "null",
+  "remove": true,
+  "forms_are_base": false,
+  "only_interior": false
+}

@@ -1,1 +1,1 @@
-file(GLOB sources src/**.cpp)
+file(GLOB sources "src/**.cpp")

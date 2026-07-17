@@ -1,6 +1,6 @@
 #pragma once
-#include <unordered_set>
 #include <Forms.h>
+#include <unordered_set>
 #include <vector>
 namespace MPL::Config
 {
@@ -25,6 +25,7 @@ namespace MPL::Config
         {
             if (this->config_loaded) return;
             std::lock_guard _guard(this->load_lock);
+            logger::info("Begin loading config");
             if (!this->config_loaded)
             {
                 if (std::filesystem::exists(this->config_path))
@@ -33,13 +34,16 @@ namespace MPL::Config
                     {
                         if (file.path().extension() == ".json")
                         {
-                            auto cfg = rfl::json::load<std::vector<ConfigEntry>>(file.path().string());
-                            if (cfg)
+                            if (auto cfg = rfl::json::load<std::vector<ConfigEntry>>(file.path().string()); cfg.has_value())
                             {
                                 for (auto& conf : *cfg)
                                 {
                                     this->entries.push_back(conf);
                                 }
+                            }
+                            else if (auto cfg = rfl::json::load<ConfigEntry>(file.path().string()); cfg.has_value())
+                            {
+                                this->entries.push_back(*cfg);
                             }
                             else
                             {
@@ -55,6 +59,7 @@ namespace MPL::Config
                 }
                 this->config_loaded = true;
             }
+            logger::info("Finished loading config");
         }
         std::vector<ConfigEntry> entries;
     };

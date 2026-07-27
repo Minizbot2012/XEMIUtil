@@ -20,7 +20,7 @@ public:
     explicit constexpr VariantIndex(size_t se, size_t ae) noexcept
     {
         a_vr = a_se = se;
-        ae = ae;
+        a_ae = ae;
     }
     explicit constexpr VariantIndex(size_t se, size_t ae, size_t vr) noexcept
     {

@@ -1,0 +1,8 @@
+{
+    "id":  "XEMIUtil",
+    "LumaManifest":  true,
+    "detailedLogging":  true,
+    "notifications":  false,
+    "version":  "1.9.0.0",
+    "compatibility":  []
+}

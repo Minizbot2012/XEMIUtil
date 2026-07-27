@@ -50,7 +50,6 @@ set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG OFF)
 
 # ---- Add source files ----
 set(BUILD_TESTS OFF CACHE BOOL "Disable Tests" FORCE)
-add_subdirectory(extern/CommonLibSSE)
 include(CMake/headerlist.cmake)
 include(CMake/sourcelist.cmake)
 
@@ -89,13 +88,19 @@ target_include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
+find_package(CommonLibSSE CONFIG REQUIRED)
+find_package(DirectXTK CONFIG REQUIRED)
 find_package(reflectcpp CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
+find_package(ZLIB REQUIRED)
 
 target_link_libraries(
  ${PROJECT_NAME}
  PRIVATE
   CommonLibSSE::CommonLibSSE
+  nlohmann_json::nlohmann_json
   reflectcpp::reflectcpp
+  ZLIB::ZLIB
 )
 
 target_precompile_headers(

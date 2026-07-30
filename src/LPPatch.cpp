@@ -1,10 +1,10 @@
 #include <LPPatch.h>
 
+#include <FormResolver.h>
 #include <algorithm>
 #include <array>
 #include <atomic>
 #include <cctype>
-#include <charconv>
 #include <cstring>
 #include <exception>
 #include <filesystem>
@@ -63,66 +63,6 @@ namespace MPL::LPPatch
         bool IsJsonFile(const std::filesystem::path& a_path)
         {
             return IEquals(a_path.extension().string(), ".json");
-        }
-
-        bool IsHexString(std::string_view a_value)
-        {
-            if (a_value.starts_with("0x") || a_value.starts_with("0X"))
-            {
-                a_value.remove_prefix(2);
-            }
-            return !a_value.empty() &&
-                   std::ranges::all_of(a_value, [](const unsigned char a_character) {
-                       return std::isxdigit(a_character) != 0;
-                   });
-        }
-
-        std::optional<RE::FormID> ParseHex(std::string_view a_value)
-        {
-            if (a_value.starts_with("0x") || a_value.starts_with("0X"))
-            {
-                a_value.remove_prefix(2);
-            }
-            RE::FormID value = 0;
-            const auto [end, error] = std::from_chars(
-                a_value.data(),
-                a_value.data() + a_value.size(),
-                value,
-                16);
-            if (error != std::errc{} || end != a_value.data() + a_value.size())
-            {
-                return std::nullopt;
-            }
-            return value;
-        }
-
-        RE::FormID ResolveFormID(const std::string_view a_selector)
-        {
-            auto* dataHandler = RE::TESDataHandler::GetSingleton();
-            if (!dataHandler || a_selector.empty())
-            {
-                return 0;
-            }
-
-            const auto separator = a_selector.find_first_of("~:");
-            if (separator != std::string_view::npos)
-            {
-                const auto local = ParseHex(a_selector.substr(0, separator));
-                const auto plugin = a_selector.substr(separator + 1);
-                return local && !plugin.empty() ?
-                           dataHandler->LookupFormID(*local, plugin) :
-                           0;
-            }
-            if (IsHexString(a_selector))
-            {
-                const auto formID = ParseHex(a_selector);
-                return formID.value_or(0);
-            }
-            if (const auto* form = RE::TESForm::LookupByEditorID(a_selector))
-            {
-                return form->GetFormID();
-            }
-            return 0;
         }
 
         bool LightMatches(
@@ -258,7 +198,7 @@ namespace MPL::LPPatch
                 {
                     if (selector.is_string())
                     {
-                        const auto formID = ResolveFormID(
+                        const auto formID = FormResolver::Resolve(
                             selector.get_ref<const std::string&>());
                         if (formID)
                         {
@@ -323,7 +263,7 @@ namespace MPL::LPPatch
                 {
                     if (selector.is_string())
                     {
-                        const auto form = ResolveFormID(
+                        const auto form = FormResolver::Resolve(
                             selector.get_ref<const std::string&>());
                         if (form)
                         {
@@ -429,8 +369,8 @@ namespace MPL::LPPatch
             {
                 return true;
             }
-            const auto existing = ResolveFormID(a_existing);
-            const auto target = ResolveFormID(a_target);
+            const auto existing = FormResolver::Resolve(a_existing);
+            const auto target = FormResolver::Resolve(a_target);
             return existing && target && existing == target;
         }
 
@@ -1001,16 +941,47 @@ namespace MPL::LPPatch
 
     std::string StableFormKey(const RE::FormID a_formID)
     {
-        const auto* form = RE::TESForm::LookupByID(a_formID);
-        const auto* file = form ? form->GetFile(0) : nullptr;
-            return file ?
-                       std::format(
-                           "0x{:X}~{}",
-                           form->GetLocalFormID(),
-                           file->GetFilename()) :
-                       a_formID ? std::format("0x{:X}", a_formID) :
-                                  std::string{};
+        if (!a_formID)
+        {
+            return {};
         }
+
+        auto* dataHandler =
+            RE::TESDataHandler::GetSingleton();
+        if (!dataHandler)
+        {
+            return std::format("0x{:X}", a_formID);
+        }
+
+        const bool isLightForm =
+            (a_formID & 0xFF000000) == 0xFE000000;
+        const auto fullIndex =
+            static_cast<std::uint8_t>(a_formID >> 24);
+        if (!isLightForm && fullIndex == 0xFF)
+        {
+            return std::format("0x{:X}", a_formID);
+        }
+        const auto* file =
+            isLightForm ?
+                dataHandler->LookupLoadedLightModByIndex(
+                    static_cast<std::uint16_t>(
+                        (a_formID & 0x00FFF000) >> 12)) :
+                dataHandler->LookupLoadedModByIndex(
+                    fullIndex);
+        if (!file)
+        {
+            return std::format("0x{:X}", a_formID);
+        }
+
+        const RE::FormID localFormID =
+            isLightForm ?
+                a_formID & 0x00000FFF :
+                a_formID & 0x00FFFFFF;
+        return std::format(
+            "0x{:X}~{}",
+            localFormID,
+            file->GetFilename());
+    }
 
     void QueueStartupPatch(std::vector<PatchRule> a_rules)
     {

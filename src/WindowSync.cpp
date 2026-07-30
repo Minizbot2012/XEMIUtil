@@ -1,3 +1,4 @@
+#include <BOS.h>
 #include <Config.h>
 #include <DetailedLogging.h>
 #include <LPPatch.h>
@@ -69,6 +70,13 @@ namespace MPL::WindowSync
                 const XEMIAPI::CellResult*) = nullptr;
         };
 
+        struct RegisteredReferenceClient
+        {
+            std::string id;
+            void (*OnReferenceEmittanceChanged)(
+                RE::TESObjectREFR*) = nullptr;
+        };
+
         struct CellState
         {
             std::unordered_set<std::size_t> matchedEntries;
@@ -82,6 +90,8 @@ namespace MPL::WindowSync
         std::unordered_map<RE::FormID, std::size_t> referencePlans;
         std::vector<RE::FormID> indexedReferences;
         std::vector<RegisteredClient> clients;
+        std::vector<RegisteredReferenceClient> referenceClients;
+        std::unordered_set<RE::FormID> emissiveLightReferences;
         std::atomic_bool startupInitialized{ false };
         std::atomic_bool pluginIndexComplete{ false };
 
@@ -396,6 +406,69 @@ namespace MPL::WindowSync
             }
         }
 
+        void NotifyReferenceClient(
+            const RegisteredReferenceClient& a_callback,
+            RE::TESObjectREFR* a_reference)
+        {
+            try
+            {
+                if (a_callback.OnReferenceEmittanceChanged)
+                {
+                    a_callback.OnReferenceEmittanceChanged(a_reference);
+                }
+            }
+            catch (const std::exception& error)
+            {
+                logger::error(
+                    "[Window Sync] XEMI API client '{}' raised an exception during OnReferenceEmittanceChanged: {}",
+                    a_callback.id,
+                    error.what());
+            }
+            catch (...)
+            {
+                logger::error(
+                    "[Window Sync] XEMI API client '{}' raised an unknown exception during OnReferenceEmittanceChanged",
+                    a_callback.id);
+            }
+        }
+
+        void NotifyReferenceClients(RE::TESObjectREFR* a_reference)
+        {
+            const auto* base = a_reference ? a_reference->GetBaseObject() : nullptr;
+            if (!base || !base->Is(RE::FormType::Light))
+            {
+                return;
+            }
+
+            std::vector<RegisteredReferenceClient> callbacks;
+            try
+            {
+                std::scoped_lock lock(stateLock);
+                emissiveLightReferences.insert(a_reference->GetFormID());
+                callbacks = referenceClients;
+            }
+            catch (const std::exception& error)
+            {
+                logger::error(
+                    "[Window Sync] Could not record XEMI-backed light reference {:08X}: {}",
+                    a_reference->GetFormID(),
+                    error.what());
+                return;
+            }
+            catch (...)
+            {
+                logger::error(
+                    "[Window Sync] Could not record XEMI-backed light reference {:08X} because an unknown exception occurred",
+                    a_reference->GetFormID());
+                return;
+            }
+
+            for (const auto& callback : callbacks)
+            {
+                NotifyReferenceClient(callback, a_reference);
+            }
+        }
+
         bool UpdateCellState(
             RE::TESObjectCELL* a_cell,
             const std::unordered_set<std::size_t>& a_matches,
@@ -564,12 +637,17 @@ namespace MPL::WindowSync
                     "[Window Sync] Applied XEMI {:08X} to reference {:08X}",
                     source->GetFormID(),
                     a_reference->GetFormID());
+                NotifyReferenceClients(a_reference);
                 return true;
             }
             else if (a_entry.remove.value_or(false) &&
                      a_reference->extraList.HasType<RE::ExtraEmittanceSource>())
             {
                 a_reference->extraList.RemoveByType(RE::ExtraDataType::kEmittanceSource);
+                {
+                    std::scoped_lock lock(stateLock);
+                    emissiveLightReferences.erase(a_reference->GetFormID());
+                }
                 return true;
             }
             return false;
@@ -758,6 +836,7 @@ namespace MPL::WindowSync
             }
 
             auto index = PluginIndex::Build();
+            BOS::ApplyConfiguredSwaps(index);
             std::unordered_map<
                 RE::TESObjectCELL*,
                 std::vector<const PluginIndex::Placement*>>
@@ -781,34 +860,8 @@ namespace MPL::WindowSync
                 }
             }
 
-            std::size_t runtimeReferences = 0;
-            std::size_t runtimeBaseOverrides = 0;
             for (auto& [formID, placement] : index.placements)
             {
-                if (!placement.deleted)
-                {
-                    if (auto* reference =
-                            RE::TESForm::LookupByID<RE::TESObjectREFR>(formID))
-                    {
-                        if (const auto* base = reference->GetBaseObject())
-                        {
-                            ++runtimeReferences;
-                            const auto runtimeBase = base->GetFormID();
-                            if (runtimeBase && runtimeBase != placement.base)
-                            {
-                                DetailedLogging::Info(
-                                    "[Window Sync] Reconciled runtime base for reference "
-                                    "{:08X} in cell {:08X}: {:08X} -> {:08X}",
-                                    formID,
-                                    placement.cell,
-                                    placement.base,
-                                    runtimeBase);
-                                placement.base = runtimeBase;
-                                ++runtimeBaseOverrides;
-                            }
-                        }
-                    }
-                }
                 if (placement.deleted || !placement.base ||
                     !IsSupportedBase(placement.base))
                 {
@@ -908,7 +961,6 @@ namespace MPL::WindowSync
             logger::info(
                 "[Window Sync] Startup plugin index completed: plugins={}/{}, "
                 "REFR records={}, compressed REFR records={}, winning placements={}, "
-                "runtime references={}, runtime base overrides={}, "
                 "supported references={}, interior cells classified={}, "
                 "cellContains matches={}, direct XEMI plans={}, initialized references "
                 "changed={}, index={}",
@@ -917,8 +969,6 @@ namespace MPL::WindowSync
                 index.referencesRead,
                 index.compressedReferences,
                 index.placements.size(),
-                runtimeReferences,
-                runtimeBaseOverrides,
                 indexedReferences.size(),
                 startupCells.size(),
                 matchedCells,
@@ -1003,6 +1053,82 @@ namespace MPL::WindowSync
             {
                 NotifyClient(client, cell, result);
             }
+            return true;
+        }
+
+        bool RegisterReferenceClient(
+            const XEMIAPI::ReferenceCallbacks* a_callbacks)
+        {
+            if (!a_callbacks || !a_callbacks->id ||
+                !*a_callbacks->id ||
+                !a_callbacks->OnReferenceEmittanceChanged)
+            {
+                return false;
+            }
+
+            std::vector<RE::FormID> replay;
+            RegisteredReferenceClient client;
+            try
+            {
+                client = {
+                    .id = a_callbacks->id,
+                    .OnReferenceEmittanceChanged =
+                        a_callbacks->OnReferenceEmittanceChanged,
+                };
+                std::scoped_lock lock(stateLock);
+                const auto existing = std::ranges::find_if(
+                    referenceClients,
+                    [&](const RegisteredReferenceClient& a_registered)
+                    {
+                        return a_registered.id == client.id;
+                    });
+                if (existing != referenceClients.end())
+                {
+                    return existing->OnReferenceEmittanceChanged ==
+                           client.OnReferenceEmittanceChanged;
+                }
+                referenceClients.push_back(client);
+                replay.assign(
+                    emissiveLightReferences.begin(),
+                    emissiveLightReferences.end());
+            }
+            catch (const std::exception& error)
+            {
+                logger::error(
+                    "[Window Sync] Could not register XEMI reference client '{}': {}",
+                    a_callbacks->id,
+                    error.what());
+                return false;
+            }
+            catch (...)
+            {
+                logger::error(
+                    "[Window Sync] Could not register XEMI reference client '{}' because an unknown exception occurred",
+                    a_callbacks->id);
+                return false;
+            }
+
+            std::size_t replayed = 0;
+            for (const auto formID : replay)
+            {
+                auto* reference =
+                    RE::TESForm::LookupByID<RE::TESObjectREFR>(formID);
+                const auto* extra =
+                    reference ?
+                        reference->extraList.GetByType<
+                            RE::ExtraEmittanceSource>() :
+                        nullptr;
+                if (!extra || !extra->source)
+                {
+                    continue;
+                }
+                NotifyReferenceClient(client, reference);
+                ++replayed;
+            }
+            logger::info(
+                "[Window Sync] Registered XEMI reference client '{}' and replayed {} XEMI-backed light reference(s)",
+                client.id,
+                replayed);
             return true;
         }
 
@@ -1102,6 +1228,7 @@ namespace MPL::WindowSync
             .RegisterClient = RegisterClient,
             .HasWindowProfiles = HasWindowProfiles,
             .GetCellResult = GetCellResult,
+            .RegisterReferenceClient = RegisterReferenceClient,
             .RegisterLightPlacerTransformer =
                 LPPatch::RegisterTransformer,
             .RequestLightPlacerReload = LPPatch::RequestReload,

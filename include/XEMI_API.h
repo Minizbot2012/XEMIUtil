@@ -6,11 +6,12 @@
 namespace RE
 {
     class TESObjectCELL;
+    class TESObjectREFR;
 }
 
 namespace MPL::XEMIAPI
 {
-    inline constexpr std::uint32_t kVersion = 4;
+    inline constexpr std::uint32_t kVersion = 5;
 
     using LightPlacerOutput =
         bool (*)(void*, const char*, std::size_t);
@@ -61,12 +62,20 @@ namespace MPL::XEMIAPI
         void (*OnCellClassified)(RE::TESObjectCELL*, const CellResult*) = nullptr;
     };
 
+    struct ReferenceCallbacks
+    {
+        // The ID is copied during registration.
+        const char* id = nullptr;
+        void (*OnReferenceEmittanceChanged)(RE::TESObjectREFR*) = nullptr;
+    };
+
     struct Interface
     {
         std::uint32_t version = kVersion;
         bool (*RegisterClient)(const ClientCallbacks*) = nullptr;
         bool (*HasWindowProfiles)() = nullptr;
         CellResult (*GetCellResult)(RE::TESObjectCELL*) = nullptr;
+        bool (*RegisterReferenceClient)(const ReferenceCallbacks*) = nullptr;
         bool (*RegisterLightPlacerTransformer)(
             const LightPlacerTransformer*) = nullptr;
         bool (*RequestLightPlacerReload)() = nullptr;

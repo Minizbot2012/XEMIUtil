@@ -32,14 +32,14 @@ jobs:
       - name: Build
         run: cmake --build --preset ${{env.PRESET}} --config Release
       - name: Archive
-        run: 7z a -tzip ${{ env.PROJECT_NAME }}.zip ./build/windows/x64/release/${{ env.PROJECT_NAME }}.dll ./build/windows/x64/release/${{ env.PROJECT_NAME }}.pdb
+        run: 7z a -tzip ${{ env.PROJECT_NAME }}.zip ./build/release/${{ env.PROJECT_NAME }}.dll ./build/release/${{ env.PROJECT_NAME }}.pdb
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v7
         with:
           name: Skyrim
           path: |
-            ./build/windows/x64/release/${{ env.PROJECT_NAME }}.dll
-            ./build/windows/x64/release/${{ env.PROJECT_NAME }}.pdb
+            ./build/release/${{ env.PROJECT_NAME }}.dll
+            ./build/release/${{ env.PROJECT_NAME }}.pdb
       - name: Create & Upload Release
         id: upload-release
         uses: softprops/action-gh-release@v3

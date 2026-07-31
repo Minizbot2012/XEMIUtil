@@ -7,6 +7,8 @@ on:
   workflow_dispatch:
 
 env:
+  VCPKG_ROOT: C:\vcpkg
+  PRESET: vs2026-windows-vcpkg
   PROJECT_NAME: XEMIUtil
 
 permissions:
@@ -20,12 +22,15 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: recursive
-      - name: Setup xmake
-        uses: xmake-io/github-action-setup-xmake@v1
-        with:
-          xmake-version: latest
+      - name: Update VCPKG
+        run: |
+          cd ${{ env.VCPKG_INSTALLATION_ROOT }}
+          bootstrap-vcpkg.bat -disableMetrics
+          vcpkg integrate install
+      - name: Configure CMake
+        run: cmake --preset ${{env.PRESET}}
       - name: Build
-        run: xmake -y
+        run: cmake --build --preset ${{env.PRESET}} --config Release
       - name: Archive
         run: 7z a -tzip ${{ env.PROJECT_NAME }}.zip ./build/windows/x64/release/${{ env.PROJECT_NAME }}.dll ./build/windows/x64/release/${{ env.PROJECT_NAME }}.pdb
       - name: Upload a Build Artifact

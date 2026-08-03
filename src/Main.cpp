@@ -8,7 +8,7 @@
 
 SKSEPluginInfo(
         .Version = REL::Version{ MPL::Plugin::MAJOR, MPL::Plugin::MINOR, MPL::Plugin::PATCH, 0 },
-    .Name = "XEMIUtil"sv,
+    .Name = MPL::Plugin::PROJECT,
     .Author = "Mini"sv,
     .SupportEmail = ""sv,
     .StructCompatibility = SKSE::StructCompatibility::Independent,

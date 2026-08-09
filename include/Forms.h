@@ -4,20 +4,12 @@ namespace MPL::Config
     struct LiteForm
     {
         RE::FormID formID;
-        std::string selector;
-
         template <class T>
-        T* Get() const
+        T* Get()
         {
             return RE::TESForm::LookupByID<T>(formID);
         };
-        static LiteForm FromID(RE::FormID id, std::string selector = {})
-        {
-            return {
-                .formID = id,
-                .selector = std::move(selector),
-            };
-        };
+        static LiteForm FromID(RE::FormID id) { return { .formID = id }; };
         bool operator==(const LiteForm& other) const { return formID == other.formID; }
     };
 }  // namespace MPL::Config
@@ -52,16 +44,14 @@ namespace rfl
                 auto lfid = strtoul(v.substr(0, loc).c_str(), nullptr, 16);
                 auto file = v.substr(loc + 1);
                 auto* dh = RE::TESDataHandler::GetSingleton();
-                return MPL::Config::LiteForm::FromID(
-                    dh->LookupFormID(lfid, file),
-                    v);
+                return MPL::Config::LiteForm::FromID(dh->LookupFormID(lfid, file));
             }
             else
             {
                 auto* frm = RE::TESForm::LookupByEditorID(v);
                 if (frm)
                 {
-                    return MPL::Config::LiteForm::FromID(frm->formID, v);
+                    return MPL::Config::LiteForm::FromID(frm->formID);
                 }
                 else
                 {

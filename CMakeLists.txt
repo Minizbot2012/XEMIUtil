@@ -91,16 +91,12 @@ target_include_directories(
 find_package(CommonLibSSE CONFIG REQUIRED)
 find_package(DirectXTK CONFIG REQUIRED)
 find_package(reflectcpp CONFIG REQUIRED)
-find_package(nlohmann_json CONFIG REQUIRED)
-find_package(ZLIB REQUIRED)
 
 target_link_libraries(
  ${PROJECT_NAME}
  PRIVATE
   CommonLibSSE::CommonLibSSE
-  nlohmann_json::nlohmann_json
   reflectcpp::reflectcpp
-  ZLIB::ZLIB
 )
 
 target_precompile_headers(

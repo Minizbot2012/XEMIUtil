@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.40)
 set(NAME "XEMIUtil" CACHE STRING "")
-set(VERSION 1.6.0.0 CACHE STRING "")
+set(VERSION 1.7.0.0 CACHE STRING "")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # ---- Cache build vars ----

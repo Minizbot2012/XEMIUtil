@@ -8,7 +8,7 @@ on:
 
 env:
   VCPKG_ROOT: C:\vcpkg
-  PRESET: vs2026-windows-vcpkg
+  PRESET: clang-windows-vcpkg
   PROJECT_NAME: XEMIUtil
 
 permissions:
@@ -32,14 +32,14 @@ jobs:
       - name: Build
         run: cmake --build --preset ${{env.PRESET}} --config Release
       - name: Archive
-        run: 7z a -tzip ${{ env.PROJECT_NAME }}.zip ./build/release/${{ env.PROJECT_NAME }}.dll ./build/release/${{ env.PROJECT_NAME }}.pdb
+        run: 7z a -tzip ${{ env.PROJECT_NAME }}.zip ./build/release-clang-windows/${{ env.PROJECT_NAME }}.dll ./build/release-clang-windows/${{ env.PROJECT_NAME }}.pdb
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v7
         with:
           name: Skyrim
           path: |
-            ./build/release/${{ env.PROJECT_NAME }}.dll
-            ./build/release/${{ env.PROJECT_NAME }}.pdb
+            ./build/release-clang-windows/${{ env.PROJECT_NAME }}.dll
+            ./build/release-clang-windows/${{ env.PROJECT_NAME }}.pdb
       - name: Create & Upload Release
         id: upload-release
         uses: softprops/action-gh-release@v3

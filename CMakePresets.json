@@ -2,12 +2,10 @@
   "version": 3,
   "configurePresets": [
     {
-      "name": "cmake-dev",
+      "name": "common",
       "hidden": true,
       "cacheVariables": {
-        "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
-        "CMAKE_CXX_FLAGS": "/EHsc /MP /W4 /WX /external:W0 $penv{CXXFLAGS}",
-        "CMAKE_CXX_FLAGS_RELEASE": "/O2 /DNDEBUG"
+        "CMAKE_CXX_FLAGS": "$env{PROJECT_PLATFORM_FLAGS} $env{PROJECT_TEXT_FLAGS} $env{PROJECT_COMPILER_FLAGS} $penv{CXX_FLAGS}"
       },
       "errors": {
         "deprecated": true
@@ -18,22 +16,126 @@
       }
     },
     {
-      "name": "vcpkg",
+      "name": "architecture-x64",
       "hidden": true,
-      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
-    },
-    {
-      "name": "windows",
-      "hidden": true,
-      "cacheVariables": {
-        "VCPKG_TARGET_TRIPLET": "x64-windows-static-md"
+      "environment": {
+        "PROJECT_ARCHITECTURE": "x64"
       }
     },
     {
-      "name": "vs2026",
+      "name": "buildtype-debug",
       "hidden": true,
-      "generator": "Visual Studio 18 2026",
-      "toolset": "v145"
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "buildtype-release",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "buildtype-relwithdebinfo",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "platform-win32",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL"
+      },
+      "environment": {
+        "PROJECT_PLATFORM_FLAGS": "-DWIN32_LEAN_AND_MEAN -DNOMINMAX",
+        "PROJECT_PLATFORM": "windows"
+      }
+    },
+    {
+      "name": "platform-win32-unicode",
+      "hidden": true,
+      "inherits": "platform-win32",
+      "environment": {
+        "PROJECT_TEXT_FLAGS": "-DUNICODE -D_UNICODE"
+      }
+    },
+    {
+      "name": "generator-ninja",
+      "hidden": true,
+      "generator": "Ninja"
+    },
+    {
+      "name": "packaging-vcpkg",
+      "hidden": true,
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "USE_VCPKG": "ON",
+        "VCPKG_OVERLAY_PORTS": "${sourceDir}/CMake/ports",
+        "VCPKG_HOST_TRIPLET": "$env{PROJECT_ARCHITECTURE}-$env{PROJECT_PLATFORM}-static-md",
+        "VCPKG_TARGET_TRIPLET": "$env{PROJECT_ARCHITECTURE}-$env{PROJECT_PLATFORM}-static-md"
+      }
+    },
+    {
+      "name": "packaging-vcpkg-linux-clangcl",
+      "hidden": true,
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "USE_VCPKG": "ON",
+        "VCPKG_HOST_TRIPLET": "x64-linux",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-clangcl",
+        "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/CMake/triplets",
+        "VCPKG_OVERLAY_PORTS": "${sourceDir}/CMake/ports",
+        "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "${sourceDir}/CMake/toolchain-linux-clangcl.cmake"
+      }
+    },
+    {
+      "name": "compiler-msvc",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "cl.exe",
+        "CMAKE_CXX_COMPILER": "cl.exe"
+      },
+      "environment": {
+        "PROJECT_COMPILER_FLAGS": "/permissive- /Zc:preprocessor /EHsc /MP /W4 /WX /external:anglebrackets /external:W0 /bigobj",
+        "PROJECT_COMPILER": "msvc"
+      }
+    },
+    {
+      "name": "compiler-clang",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      },
+      "environment": {
+        "PROJECT_COMPILER": "clang",
+        "PROJECT_COMPILER_FLAGS": "-Wno-overloaded-virtual -Wno-delete-non-abstract-non-virtual-dtor -Wno-inconsistent-missing-override -Wno-reinterpret-base-class"
+      }
+    },
+    {
+      "name": "compiler-clangcl",
+      "hidden": true,
+      "inherits": ["compiler-clang"],
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang-cl",
+        "CMAKE_C_COMPILER": "clang-cl"
+      },
+      "environment": {
+        "CC": "clang-cl",
+        "CXX": "clang-cl",
+        "PROJECT_COMPILER_FLAGS": "/permissive- /EHsc /W4 /WX /bigobj -Wno-overloaded-virtual -Wno-delete-non-abstract-non-virtual-dtor -Wno-inconsistent-missing-override -Wno-reinterpret-base-class -Wno-nonportable-include-path -Wno-deprecated-copy-with-user-provided-copy -Wno-invalid-offsetof -Wno-switch -Wno-unused-command-line-argument -Wno-deprecated-volatile -Wno-unused-private-field"
+      }
+    },
+    {
+      "name": "compiler-linux-clangcl",
+      "hidden": true,
+      "environment": {
+        "PROJECT_COMPILER": "clang-cl",
+        "PROJECT_COMPILER_FLAGS": "/permissive- /EHsc /W4 /WX /bigobj -Wno-overloaded-virtual -Wno-delete-non-abstract-non-virtual-dtor -Wno-inconsistent-missing-override -Wno-reinterpret-base-class -Wno-nonportable-include-path -Wno-deprecated-copy-with-user-provided-copy -Wno-invalid-offsetof -Wno-switch -Wno-unused-command-line-argument -Wno-deprecated-volatile -Wno-unused-private-field"
+      }
     },
     {
       "name": "ng",
@@ -41,20 +143,57 @@
       "binaryDir": "${sourceDir}/build"
     },
     {
-      "name": "vs2026-windows-vcpkg",
-      "inherits": ["cmake-dev", "vcpkg", "windows", "vs2026", "ng"]
+      "name": "clang-windows-vcpkg",
+      "inherits": [
+        "buildtype-release",
+        "architecture-x64",
+        "platform-win32-unicode",
+        "generator-ninja",
+        "compiler-clangcl",
+        "packaging-vcpkg",
+        "common"
+      ],
+      "binaryDir": "${sourceDir}/build/release-clang-windows-vcpkg"
+    },
+    {
+      "name": "clang-linux-vcpkg",
+      "inherits": [
+        "buildtype-release",
+        "architecture-x64",
+        "platform-win32-unicode",
+        "generator-ninja",
+        "compiler-linux-clangcl",
+        "packaging-vcpkg-linux-clangcl",
+        "common"
+      ],
+      "binaryDir": "${sourceDir}/build/release-linux-clangcl-vcpkg-all"
+    },
+    {
+      "name": "vs-windows-vcpkg",
+      "inherits": [
+        "buildtype-release",
+        "architecture-x64",
+        "platform-win32-unicode",
+        "generator-ninja",
+        "compiler-msvc",
+        "packaging-vcpkg",
+        "common"
+      ],
+      "binaryDir": "${sourceDir}/build/release-msvc-vcpkg-all"
     }
   ],
   "buildPresets": [
     {
-      "name": "vs2026-windows-vcpkg",
-      "configurePreset": "vs2026-windows-vcpkg",
-      "configuration": "Release"
+      "name": "vs-windows-vcpkg",
+      "configurePreset": "vs-windows-vcpkg"
     },
     {
-      "name": "vs2026-windows-vcpkg-debug",
-      "configurePreset": "vs2026-windows-vcpkg",
-      "configuration": "Debug"
+      "name": "clang-windows-vcpkg",
+      "configurePreset": "clang-windows-vcpkg"
+    },
+    {
+      "name": "clang-linux-vcpkg",
+      "configurePreset": "clang-linux-vcpkg"
     }
   ]
 }

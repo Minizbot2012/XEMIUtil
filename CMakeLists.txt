@@ -97,7 +97,6 @@ if(MSVC)
 		"$<$<CONFIG:Debug>:/Zo>"
 
 		# Standards conformance
-		/Zc:preprocessor # Enable conforming preprocessor (required for STATIC_ASSERT_SIZE variadic macro)
 		/Z7
 		# disable warnings
 		"$<$<CONFIG:Debug>:/wd4702>" # unreachable code: debug builds don't optimize away compile-time conditionals

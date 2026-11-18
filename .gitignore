@@ -1,4 +1,5 @@
 build*
-.vscode*
+.cache/
+.vscode/
 compile_commands.json
-.cache
+__cmake*
